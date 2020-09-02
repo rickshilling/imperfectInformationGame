@@ -12,66 +12,6 @@ data Action = Heads | Tails | ActionLeft | ActionRight | Forfeit deriving (Eq,Or
 type Payout = Float
 type P = Set Player
 type Probability = Float
-
-{-
-type SimpleGameTree = Tree (Maybe Action)
-
-s =
-  Node Nothing
-  [
-    Node (Just Heads)
-    [
-      Node (Just ActionLeft) [],
-      Node (Just ActionRight)
-      [
-        Node (Just Heads) [],
-        Node (Just Forfeit) [],
-        Node (Just Tails) []
-      ]
-    ],
-    Node (Just Tails)
-    [
-      Node (Just ActionLeft) [],
-      Node (Just ActionRight)
-      [
-        Node (Just Heads) [],
-        Node (Just Forfeit) [],
-        Node (Just Tails) []
-      ]
-    ]
-  ] :: SimpleGameTree
-
-q =
-  Node (Just Tails)
-  [
-    Node (Just Heads) [],
-    Node (Just ActionLeft)
-    [
-      Node (Just Heads) []
-    ]
-  ]
-
-getAllHistories :: SimpleGameTree -> Set [Action]
-getAllHistories (Node Nothing [])      = empty
-getAllHistories (Node Nothing forests) = Prelude.foldl union empty (Prelude.map getAllHistories forests)
-getAllHistories (Node (Just currentAction) []) = fromList [[currentAction]]
-getAllHistories (Node (Just currentAction) forests) = union (Data.Set.map ([currentAction]++) forestActionSet) (fromList [[currentAction]])
-  where
-    forestActionList = (Prelude.map getAllHistories  forests)
-    forestActionSet = Prelude.foldl union empty forestActionList
-
-isOrderedSublistOf :: Eq a => [a] -> [a] -> Bool
-isOrderedSublistOf [] _ = True
-isOrderedSublistOf (x:xs) [] = False
-isOrderedSublistOf (x:xs) (y:ys) = if x /= y then False else isOrderedSublistOf xs ys
-
-
-getRemainingList :: (Eq a) => [a] -> [a] -> Maybe [a]
-getRemainingList [] t  = Just t
-getRemainingList _  [] = Nothing
-getRemainingList (s:ss) (t:tt) = if s /= t then Nothing else getRemainingList ss tt
--}
-
 data GameTree = GameNode {
         rootLabel :: Player,
         subForest :: [(Action, Maybe GameTree)]
