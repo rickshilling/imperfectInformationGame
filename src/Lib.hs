@@ -1,3 +1,5 @@
+{-# LANGUAGE FlexibleContexts #-}
+
 module Lib
     (
     ) where
@@ -6,6 +8,7 @@ import Data.Set
 import Data.Tree
 import Data.Graph
 import Control.Monad
+import qualified Data.Map as DataMap
 
 data Player = P1 | P2 | Chance deriving (Eq,Show)
 data Action = Heads | Tails | ActionLeft | ActionRight | Forfeit deriving (Eq,Ord,Show)
@@ -127,4 +130,33 @@ _I h = helper informationSets h
     helper [] _ = empty
     helper ((actionSet, infoSet):remainingInfoSets) h = if Data.Set.member h infoSet then infoSet else helper remainingInfoSets h
 
+actionsFromInformationSet :: (Set Action,Set [Action]) -> Set Action
+actionsFromInformationSet = fst
 
+__A = actionsFromInformationSet
+
+sigma :: (Set Action,Set [Action]) -> DataMap.Map Action Float
+sigma informationSet = undefined
+
+type InformationSets = DataMap.Map (Set Action) (Set [Action])
+
+populateInformationSets :: Set [Action] -> InformationSets
+populateInformationSets = Data.Set.foldl helper DataMap.empty 
+  where
+    helper infoSets actionList = DataMap.insertWith Data.Set.union (_A actionList) (fromList [actionList]) infoSets
+
+
+class C a where
+  m :: a
+  n :: a -> a
+
+instance C Int where
+  m = 3
+  n x = x
+
+data GameState = GameVariables {
+  myGameTree :: GameTree,
+  u :: DataMap.Map Int ((Set [Action]) -> Float) 
+}
+
+--gs = GameVariables g []
