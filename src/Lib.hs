@@ -11,7 +11,7 @@ import Control.Monad
 import qualified Data.Map as DataMap
 
 data Player = P1 | P2 | Chance deriving (Eq,Show)
-data Action = Heads | Tails | ActionLeft | ActionRight | Forfeit deriving (Eq,Ord,Show)
+data Action = Heads | Tails | ActionLeft | ActionRight | Forfeit | A | B | C | D deriving (Eq,Ord,Show)
 type Payout = Float
 type P = Set Player
 type Probability = Float
@@ -101,21 +101,26 @@ _H = getHistories g
 
 _Z = getTerminalHistories g
 
+getActionSet :: GameTree -> [Action] -> Set Action
+getActionSet gameTree actions = (helper . gameTraverse gameTree) actions
+  where
+    helper Nothing = empty
+    helper (Just gameTree) = fromList $ Prelude.map fst (Lib.subForest gameTree)
+{-
 _A :: [Action] -> Set Action
 _A h = (helper . gameTraverse g) h
   where
     helper Nothing = empty
     helper (Just gameTree) = fromList $ Prelude.map fst (Lib.subForest gameTree)
-
+-}
 _P :: [Action] -> Maybe Player
 _P h = (helper . gameTraverse g) h
   where
     helper Nothing = Nothing
     helper (Just myGameNode) = Just (Lib.rootLabel myGameNode)
-
+{-
 ofTheSameInfoSet :: [Action] -> [Action] -> Bool
 ofTheSameInfoSet h h' = (_A h) == (_A h')
-
 informationSets :: [(Set Action,Set [Action])]
 informationSets = Data.Set.foldl helper [] _H
   where
@@ -138,25 +143,76 @@ __A = actionsFromInformationSet
 sigma :: (Set Action,Set [Action]) -> DataMap.Map Action Float
 sigma informationSet = undefined
 
+-}
 type InformationSets = DataMap.Map (Set Action) (Set [Action])
-
+{-
 populateInformationSets :: Set [Action] -> InformationSets
 populateInformationSets = Data.Set.foldl helper DataMap.empty 
   where
     helper infoSets actionList = DataMap.insertWith Data.Set.union (_A actionList) (fromList [actionList]) infoSets
+-}
+
+populateInformationSets :: GameTree -> InformationSets
+populateInformationSets gameTree = Data.Set.foldl helper DataMap.empty (getHistories gameTree)
+  where
+    helper infoSets actionList = DataMap.insertWith Data.Set.union (getActionSet gameTree actionList) (fromList [actionList]) infoSets
+{-
+data GameTree = GameNode {
+        rootLabel :: Player,
+        subForest :: [(Action, Maybe GameTree)]
+}
+-}
 
 
-class C a where
-  m :: a
-  n :: a -> a
+-- type InformationSets = DataMap.Map (Set Action) (Set [Action])
+gg = GameNode P1 [(B,Just (GameNode P2 [(B,Nothing),(C,Nothing),(D,Nothing)])),(C,Nothing),(D,Nothing)]
 
-instance C Int where
-  m = 3
-  n x = x
+sndHelper :: GameTree         -> [Action] -> InformationSets -> InformationSets
+sndHelper    (GameNode _ forest) actionList  currentInfo      =
+  DataMap.insertWith Data.Set.union (fromList $ Prelude.map fst forest) (fromList [actionList]) currentInfo
 
+ir = sndHelper gg [] DataMap.empty
+
+{-
+is :: InformationSets
+is = DataMap.insert (fromList [B,C,D]) (fromList [[A]]) ir
+-}
+
+{-
+helper    (GameNode _ [])     _           currentInfo      = currentInfo
+helper    (GameNode _ forest) actionList  currentInfo      = Prelude.foldl (subhelper actionList) currentInfo forest
+  where
+    --subhelper :: ([Action] -> InformationSets -> (Action, Maybe GameTree) -> InformationSets)
+    subhelper       actionList  currentInfo        (currentAction, Nothing)  = DataMap.insertWith Data.Set.union (fromList $ Prelude.map fst forest) 
+-}
 data GameState = GameVariables {
   myGameTree :: GameTree,
-  u :: DataMap.Map Int ((Set [Action]) -> Float) 
+  u :: DataMap.Map Int ((Set [Action]) -> Float),
+  _A :: [Action] -> Set Action
 }
+  --_I :: 
 
---gs = GameVariables g []
+gs = GameVariables g DataMap.empty (getActionSet g)
+
+{-
+data TTree = TEmpty | TLeaf Int | TNode (TTree) Int (TTree)
+instance Foldable TTree where
+  foldMap f TEmpty = mempty
+  foldMap f (TLeaf x) = f x
+  foldMap f (TNode l x r) = foldMap f l `mappend` f x `mappend` foldMap f r
+-}
+{-
+class (Eq a) => MyPlayers a where
+  players :: [a]
+data MyPlayer = undefined
+-}
+
+newtype MyPlayer = MakePlayer Integer
+
+toPlayer :: Integer -> MyPlayer
+toPlayer x | x < 0 = error "Can't create negative player index"
+           | otherwise = MakePlayer x
+
+x = toPlayer 3
+
+
