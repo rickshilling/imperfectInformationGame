@@ -162,11 +162,19 @@ getInformationSets tree = traverseHelp DM.empty (Lib.subForest tree) []
   moreHelp actions infoSet (action,Nothing) = DM.insertWith DS.union DS.empty (DS.singleton (actions++[action])) infoSet
   moreHelp actions infoSet (action, Just tree) = traverseHelp infoSet (Lib.subForest tree) (actions++[action])
 
-insertInfoSet :: [(Action, Maybe GameTree)] -> [Action] -> InformationSets -> InformationSets 
+insertInfoSet :: [(Action, Maybe GameTree)] -> [Action] -> InformationSets -> InformationSets
 insertInfoSet forest actions infoSet = DM.insertWith DS.union (getActions forest) (DS.singleton actions) infoSet
 
 getActions :: [(Action, Maybe GameTree)] -> DS.Set Action
 getActions = Prelude.foldl (\set -> \element -> DS.union set (DS.singleton (fst element))) DS.empty
+
+sameInfoSet :: GameTree -> [Action] -> [Action] -> Bool
+sameInfoSet tree a1 a2 = helper (gameTraverse tree a1) (gameTraverse tree a2)
+  where
+  helper Nothing   Nothing   = True
+  helper Nothing   _         = False
+  helper _         Nothing   = False
+  helper (Just t1) (Just t2) = (getActions (Lib.subForest t1)) == (getActions (Lib.subForest t2))
 
 populateInformationSets :: GameTree -> InformationSets
 populateInformationSets gameTree = DS.foldl helper DM.empty (getHistories gameTree)
