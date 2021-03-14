@@ -11,17 +11,16 @@ import Control.Monad
 import Data.Map
 import qualified Data.Map as DM
 import qualified Data.Set as DS
+import GameTypes
 --import qualified Prelude as P
 
-data Player = P1 | P2 | Chance deriving (Eq,Show)
-data Action = Heads | Tails | ActionLeft | ActionRight | Forfeit | A | B | C | D deriving (Eq,Ord,Show)
+
+--data Player = P1 | P2 | Chance deriving (Eq,Show)
+--data Action = Heads | Tails | ActionLeft | ActionRight | Forfeit | A | B | C | D deriving (Eq,Ord,Show)
 type Payout = Float
 type P = Set Player
 type Probability = Float
-data GameTree = GameNode {
-        rootLabel :: Player,
-        subForest :: [(Action, Maybe GameTree)]
-}
+
 
 gameTraverse :: GameTree -> [Action] -> Maybe GameTree
 gameTraverse t [] = Just t
@@ -84,7 +83,7 @@ getHistoryfromElement :: (Action, Maybe GameTree) -> Set [Action]
 getHistoryfromElement (currentAction, Nothing) = DS.fromList [[currentAction]]
 getHistoryfromElement (currentAction, Just gameTree) = DS.union (DS.map ([currentAction] ++ ) subSets) (DS.fromList [[currentAction]])
   where
-    subSets = Prelude.foldl DS.union DS.empty (Prelude.map getHistoryfromElement (Lib.subForest gameTree))
+    subSets = Prelude.foldl DS.union DS.empty (Prelude.map getHistoryfromElement (GameTypes.subForest gameTree))
 
 getHistories :: GameTree -> Set [Action]
 getHistories (GameNode _ []) = DS.empty
@@ -94,7 +93,7 @@ getTerminalHistoryfromElement :: (Action, Maybe GameTree) -> Set [Action]
 getTerminalHistoryfromElement (currentAction, Nothing) = Data.Set.fromList [[currentAction]]
 getTerminalHistoryfromElement (currentAction, Just gameTree) = Data.Set.map ([currentAction] ++ ) subSets
   where
-    subSets = Prelude.foldl DS.union DS.empty (Prelude.map getTerminalHistoryfromElement (Lib.subForest gameTree)) 
+    subSets = Prelude.foldl DS.union DS.empty (Prelude.map getTerminalHistoryfromElement (GameTypes.subForest gameTree)) 
 
 getTerminalHistories :: GameTree -> Set [Action]
 getTerminalHistories (GameNode _ []) = Data.Set.empty
@@ -108,13 +107,13 @@ getActionSet :: GameTree -> [Action] -> Set Action
 getActionSet gameTree actions = (helper . gameTraverse gameTree) actions
   where
     helper Nothing = DS.empty
-    helper (Just gameTree) = DS.fromList $ Prelude.map fst (Lib.subForest gameTree)
+    helper (Just gameTree) = DS.fromList $ Prelude.map fst (GameTypes.subForest gameTree)
 
 _P :: [Action] -> Maybe Player
 _P h = (helper . gameTraverse g) h
   where
     helper Nothing = Nothing
-    helper (Just myGameNode) = Just (Lib.rootLabel myGameNode)
+    helper (Just myGameNode) = Just (GameTypes.rootLabel myGameNode)
 {-
 ofTheSameInfoSet :: [Action] -> [Action] -> Bool
 ofTheSameInfoSet h h' = (_A h) == (_A h')
@@ -156,11 +155,11 @@ data GameTree = GameNode {
 -}
 
 getInformationSets :: GameTree -> InformationSets
-getInformationSets tree = traverseHelp DM.empty (Lib.subForest tree) []
+getInformationSets tree = traverseHelp DM.empty (GameTypes.subForest tree) []
   where
   traverseHelp infoSet forest actions = Prelude.foldl (moreHelp actions) (insertInfoSet forest actions infoSet) forest
   moreHelp actions infoSet (action,Nothing) = DM.insertWith DS.union DS.empty (DS.singleton (actions++[action])) infoSet
-  moreHelp actions infoSet (action, Just tree) = traverseHelp infoSet (Lib.subForest tree) (actions++[action])
+  moreHelp actions infoSet (action, Just tree) = traverseHelp infoSet (GameTypes.subForest tree) (actions++[action])
 
 insertInfoSet :: [(Action, Maybe GameTree)] -> [Action] -> InformationSets -> InformationSets
 insertInfoSet forest actions infoSet = DM.insertWith DS.union (getActions forest) (DS.singleton actions) infoSet
@@ -174,7 +173,7 @@ sameInfoSet tree a1 a2 = helper (gameTraverse tree a1) (gameTraverse tree a2)
   helper Nothing   Nothing   = True
   helper Nothing   _         = False
   helper _         Nothing   = False
-  helper (Just t1) (Just t2) = (getActions (Lib.subForest t1)) == (getActions (Lib.subForest t2))
+  helper (Just t1) (Just t2) = (getActions (GameTypes.subForest t1)) == (getActions (GameTypes.subForest t2))
 
 populateInformationSets :: GameTree -> InformationSets
 populateInformationSets gameTree = DS.foldl helper DM.empty (getHistories gameTree)
@@ -240,5 +239,5 @@ x = toPlayer 3
 _A h = (helper . gameTraverse g) h
   where
     helper Nothing = empty
-    helper (Just gameTree) = fromList $ Prelude.map fst (Lib.subForest gameTree)
+    helper (Just gameTree) = fromList $ Prelude.map fst (GameTypes.subForest gameTree)
 -}

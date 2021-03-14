@@ -1,10 +1,10 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.31.2.
+-- This file has been generated from package.yaml by hpack version 0.33.0.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 5841c8623500c6f7a4ba33b8552508b29a00c9ccb148727977f891a6db4e47b2
+-- hash: 512615eb8d3a3b553a0c221d96c5bd1544e42060853130a1121e1fd6b423922f
 
 name:           imperfectInformationGame
 version:        0.1.0.0
@@ -27,6 +27,7 @@ source-repository head
 
 library
   exposed-modules:
+      GameTypes
       Lib
   other-modules:
       Paths_imperfectInformationGame
