@@ -2,15 +2,16 @@ module GameTypes
   (
   Player(..),
   Action(..),
-  GameTree(..)
+  GameTree(..),
+  InformationSets(..)
   ) where
-
 import Control.Monad
-
-data Player = P1 | P2 | Chance deriving (Eq,Show)
-data Action = Heads | Tails | ActionLeft | ActionRight | Forfeit | A | B | C | D deriving (Eq,Ord,Show)
-
+import Data.Map
+import Data.Set
+data Player = P1 | P2 | Chance deriving (Eq,Show) --Int
+data Action = Heads | Tails | ActionLeft | ActionRight | Forfeit deriving (Eq,Ord,Show)
 data GameTree = GameNode {
-        rootLabel :: Player,
-        subForest :: [(Action, Maybe GameTree)]
+  rootLabel :: Player,
+  subForest :: [(Action, Maybe GameTree)]
 }
+type InformationSets = Map (Set Action) (Set [Action])
