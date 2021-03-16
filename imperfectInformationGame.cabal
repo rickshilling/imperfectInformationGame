@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 512615eb8d3a3b553a0c221d96c5bd1544e42060853130a1121e1fd6b423922f
+-- hash: 9b22b43fec7c4ffbd7a98a16e13952ca77cbd6d96391be34d7964f4edfed1d53
 
 name:           imperfectInformationGame
 version:        0.1.0.0
@@ -27,6 +27,7 @@ source-repository head
 
 library
   exposed-modules:
+      GameFunctions
       GameTypes
       Lib
   other-modules:

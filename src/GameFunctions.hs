@@ -11,7 +11,8 @@ module GameFunctions
     ) where
 import GameTypes
 import qualified Data.Map as DM
-import qualified Data.Set as DS
+import qualified Data.Set as DS 
+
 gameTraverse :: GameTree -> [Action] -> Maybe GameTree
 gameTraverse t [] = Just t
 gameTraverse (GameNode p []) (refA:as) = Nothing
