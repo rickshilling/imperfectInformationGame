@@ -6,7 +6,12 @@ import GameTypes
 import GameFunctions
 
 --data Player = P1 | P2 | Chance deriving (Eq,Show) --Int
---data Action = Heads | Tails | ActionLeft | ActionRight | Forfeit deriving (Eq,Ord,Show)
+
+
+data ExampleAction = ExHeads | ExTails | ExActionLeft | ExActionRight | ExForfeit deriving (Eq,Ord,Show)
+
+instance MyAction ExampleAction where
+  specificActions = [ExHeads,ExTails,ExActionLeft,ExActionRight,ExForfeit]
 
 g = GameNode Chance
   [
