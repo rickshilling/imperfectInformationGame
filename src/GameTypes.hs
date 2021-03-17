@@ -4,7 +4,8 @@ module GameTypes
   Player(..),
   Action(..),
   GameTree(..),
-  InformationSets(..)
+  InformationSets(..),
+  MyAction(..)
   ) where
 import Control.Monad
 import Data.Map
