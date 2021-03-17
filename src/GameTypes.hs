@@ -18,8 +18,4 @@ data GameTree = GameNode {
   rootLabel :: Player,
   subForest :: [(Action, Maybe GameTree)]
 }
-data MyGameTree = MyGameNode {
-  myRootLabel :: Player,
-  mySubForest :: [(MyAction, Maybe MyGameTree)]
-                             }
 type InformationSets = Map (Set Action) (Set [Action])
