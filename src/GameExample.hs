@@ -5,8 +5,8 @@ module GameExample
 import GameTypes
 import GameFunctions
 
-data Player = P1 | P2 | Chance deriving (Eq,Show) --Int
-data Action = Heads | Tails | ActionLeft | ActionRight | Forfeit deriving (Eq,Ord,Show)
+--data Player = P1 | P2 | Chance deriving (Eq,Show) --Int
+--data Action = Heads | Tails | ActionLeft | ActionRight | Forfeit deriving (Eq,Ord,Show)
 
 g = GameNode Chance
   [
