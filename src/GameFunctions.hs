@@ -9,6 +9,7 @@ module GameFunctions
     getActions,
     sameInfoSet
     ) where
+
 import GameTypes
 import qualified Data.Map as DM
 import qualified Data.Set as DS
