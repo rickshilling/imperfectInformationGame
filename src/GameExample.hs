@@ -5,13 +5,8 @@ module GameExample
 import GameTypes
 import GameFunctions
 
---data Player = P1 | P2 | Chance deriving (Eq,Show) --Int
---data Action = Heads | Tails | ActionLeft | ActionRight | Forfeit deriving (Eq,Ord,Show) --Int
-
-data ExampleAction = ExHeads | ExTails | ExActionLeft | ExActionRight | ExForfeit deriving (Eq,Ord,Show)
-
-instance MyAction ExampleAction where
-  specificActions = [ExHeads,ExTails,ExActionLeft,ExActionRight,ExForfeit]
+data Player = P1 | P2 | Chance deriving (Eq,Show) --Int
+data Action = Heads | Tails | ActionLeft | ActionRight | Forfeit deriving (Eq,Ord,Show) --Int
 
 g = GameNode Chance
   [
@@ -39,4 +34,6 @@ g = GameNode Chance
                   ]
                  )
     )
-  ] :: GameTree
+  ] 
+
+infoOnG = getInformationSets g
