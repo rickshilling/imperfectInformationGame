@@ -1,4 +1,3 @@
-{-# LANGUAGE EmptyDataDeriving #-}
 module GameTypes
   (
   InformationSets(..),
