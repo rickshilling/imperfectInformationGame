@@ -1,24 +1,14 @@
 {-# LANGUAGE EmptyDataDeriving #-}
 module GameTypes
   (
-  Player(..),
-  Action(..),
-  GameTree(..),
   InformationSets(..),
-  --MyAction(..)
+  GameTree(..),
   ) where
 import Control.Monad
 import Data.Map
 import Data.Set
-data Player = P1 | P2 | Chance deriving (Eq,Show) --Int
---data Action = Heads | Tails | ActionLeft | ActionRight | Forfeit deriving (Eq,Ord,Show) --Int
-
-class Action a where
-  specificActions :: [a]
-
-type InformationSets a = Map (Set Action a) (Set [Action a])
-
-data GameTree a = GameNode {
-  rootLabel :: Player,
-  subForest :: [(Action a, Maybe GameTree a)]
+type InformationSets action = Map (Set action) (Set [action])
+data GameTree player action = GameNode {
+  rootLabel :: player,
+  subForest :: [(action, Maybe (GameTree player action))]
 }

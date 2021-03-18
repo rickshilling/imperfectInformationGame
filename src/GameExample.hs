@@ -6,7 +6,7 @@ import GameTypes
 import GameFunctions
 
 --data Player = P1 | P2 | Chance deriving (Eq,Show) --Int
-
+--data Action = Heads | Tails | ActionLeft | ActionRight | Forfeit deriving (Eq,Ord,Show) --Int
 
 data ExampleAction = ExHeads | ExTails | ExActionLeft | ExActionRight | ExForfeit deriving (Eq,Ord,Show)
 
