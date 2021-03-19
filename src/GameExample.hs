@@ -37,3 +37,5 @@ g = GameNode Chance
   ] 
 
 infoOnG = getInformationSets g
+actionsFromHeads = (_A g [Heads])
+playerFromHeads = (_P g [Heads])

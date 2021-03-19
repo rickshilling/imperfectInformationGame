@@ -7,7 +7,9 @@ module GameFunctions
     getInformationSets,
     insertInfoSet,
     getActions,
-    sameInfoSet
+    sameInfoSet,
+    _A,
+    _P
     ) where
 
 import GameTypes
@@ -72,3 +74,10 @@ sameInfoSet tree a1 a2 = helper (gameTraverse tree a1) (gameTraverse tree a2)
   helper _         Nothing   = False
   helper (Just t1) (Just t2) = (getActions (GameTypes.subForest t1)) == (getActions (GameTypes.subForest t2))
 
+_A :: (Show player, Show action, Ord action) =>
+  (GameTree player action) -> History action -> Maybe (DS.Set action)
+_A g h = (gameTraverse g h) >>= (\tree -> return (getActions (subForest tree)))
+
+_P :: (Show player, Show action, Ord action) =>
+  (GameTree player action) -> History action -> Maybe player
+_P g h = (gameTraverse g h) >>= (\tree -> return (rootLabel tree))
