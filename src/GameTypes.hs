@@ -2,7 +2,8 @@ module GameTypes
   (
   InformationSets(..),
   GameTree(..),
-  History(..)
+  History(..),
+  Sigma(..)
   ) where
 import Control.Monad
 import Data.Map
@@ -14,5 +15,9 @@ data GameTree player action = GameNode {
   subForest :: [(action, Maybe (GameTree player action))]
 }
 type History action = [action]
---class sigma History action
 
+{-
+class Sigma action where
+  value :: History action -> action -> Float
+-}
+type Sigma action = History action -> action -> Float
