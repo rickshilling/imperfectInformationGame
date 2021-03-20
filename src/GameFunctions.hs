@@ -94,6 +94,5 @@ _Z :: (Eq action, Ord action) =>
 _Z g = help DS.empty (subForest g) []
   where
   help hSet forest actions = foldl (moreHelp actions) hSet forest
-  --help hSet forest actions = foldl (\set -> \elem -> moreHelp actions set elem) hSet forest
   moreHelp actions set (action, Nothing) = DS.union set (DS.singleton (actions++[action]))
   moreHelp actions set (action, Just tree) = help set (subForest tree) (actions++[action])
