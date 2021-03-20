@@ -1,17 +1,18 @@
 module GameTypes
   (
-  InformationSets(..),
   GameTree(..),
   History(..),
-  Sigma(..)
+  Sigma(..),
+  InformationMap(..)
   ) where
 import Control.Monad
 import Data.Map
 import Data.Set
-type InformationSets action = Map (Set action) (Set [action])
 data GameTree player action = GameNode {
   rootLabel :: player,
   subForest :: [(action, Maybe (GameTree player action))]
 }
 type History action = [action]
+type InformationSet action = Set (History action)
+type InformationMap action = Map (Set action) (InformationSet action)
 type Sigma action = History action -> action -> Float

@@ -4,7 +4,7 @@ module GameFunctions
     drawGameTree,
     putStrGameTree,
     putStrMaybeGameTree,
-    getInformationSets,
+    getInformationMap,
     insertInfoSet,
     getActions,
     sameInfoSet,
@@ -51,16 +51,16 @@ putStrMaybeGameTree :: (Show player, Show action) =>
 putStrMaybeGameTree Nothing = putStrLn "Nothing"
 putStrMaybeGameTree (Just gt) = putStrGameTree gt
 
-getInformationSets :: (Show player, Show action, Ord action) =>
-  (GameTree player action) -> (InformationSets action)
-getInformationSets tree = traverseHelp DM.empty (GameTypes.subForest tree) []
+getInformationMap :: (Show player, Show action, Ord action) =>
+  (GameTree player action) -> (InformationMap action)
+getInformationMap tree = traverseHelp DM.empty (GameTypes.subForest tree) []
   where
   traverseHelp infoSet forest actions = Prelude.foldl (moreHelp actions) (insertInfoSet forest actions infoSet) forest
   moreHelp actions infoSet (action, Nothing) = DM.insertWith DS.union DS.empty (DS.singleton (actions++[action])) infoSet
   moreHelp actions infoSet (action, Just tree) = traverseHelp infoSet (GameTypes.subForest tree) (actions++[action])
 
 insertInfoSet :: (Show player, Show action, Ord action) =>
-  [(action, Maybe (GameTree player action) )] -> [action] -> (InformationSets action) -> (InformationSets action)
+  [(action, Maybe (GameTree player action) )] -> [action] -> (InformationMap action) -> (InformationMap action)
 insertInfoSet forest actions infoSet = DM.insertWith DS.union (getActions forest) (DS.singleton actions) infoSet
 
 getActions :: (Show player, Show action, Ord action) =>
@@ -68,7 +68,7 @@ getActions :: (Show player, Show action, Ord action) =>
 getActions = Prelude.foldl (\set -> \element -> DS.union set (DS.singleton (fst element))) DS.empty
 
 sameInfoSet :: (Show player, Show action, Ord action) =>
-  (GameTree player action) -> [action] -> [action] -> Bool
+  (GameTree player action) -> History action -> History action -> Bool
 sameInfoSet tree a1 a2 = helper (gameTraverse tree a1) (gameTraverse tree a2)
   where
   helper Nothing   Nothing   = True
@@ -85,7 +85,7 @@ _P :: (Show player, Show action, Ord action) =>
 _P g h = (gameTraverse g h) >>= (\tree -> return (rootLabel tree))
 
 _H :: (Show action, Ord action) =>
-   (InformationSets action) -> DS.Set (History action)
+   (InformationMap action) -> DS.Set (History action)
 _H infoSet = Prelude.foldl DS.union DS.empty (DM.elems infoSet)
 
 _Z :: (Eq action, Ord action) =>

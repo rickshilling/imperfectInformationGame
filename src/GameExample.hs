@@ -37,8 +37,8 @@ g = GameNode Chance
     )
   ] 
 
-infoOnG = getInformationSets g
-historyOnG = _H infoOnG
+infoMapOnG = getInformationMap g
+historyOnG = _H infoMapOnG
 terminalHistoryOnG = _Z g
 
 actionsFromHeads = (_A g [Heads])
