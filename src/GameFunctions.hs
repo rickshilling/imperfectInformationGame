@@ -9,7 +9,8 @@ module GameFunctions
     getActions,
     sameInfoSet,
     _A,
-    _P
+    _P,
+    _H
     ) where
 
 import GameTypes
@@ -81,3 +82,7 @@ _A g h = (gameTraverse g h) >>= (\tree -> return (getActions (subForest tree)))
 _P :: (Show player, Show action, Ord action) =>
   (GameTree player action) -> History action -> Maybe player
 _P g h = (gameTraverse g h) >>= (\tree -> return (rootLabel tree))
+
+_H :: (Show action, Ord action) =>
+   (InformationSets action) -> DS.Set (History action) 
+_H infoSet = Prelude.foldl DS.union DS.empty (DM.elems infoSet)
