@@ -39,6 +39,7 @@ g = GameNode Chance
 
 infoOnG = getInformationSets g
 historyOnG = _H infoOnG
+terminalHistoryOnG = _Z g
 
 actionsFromHeads = (_A g [Heads])
 playerFromHeads = (_P g [Heads])

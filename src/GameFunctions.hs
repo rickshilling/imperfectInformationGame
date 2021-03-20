@@ -10,7 +10,8 @@ module GameFunctions
     sameInfoSet,
     _A,
     _P,
-    _H
+    _H,
+    _Z
     ) where
 
 import GameTypes
@@ -55,8 +56,9 @@ getInformationSets :: (Show player, Show action, Ord action) =>
 getInformationSets tree = traverseHelp DM.empty (GameTypes.subForest tree) []
   where
   traverseHelp infoSet forest actions = Prelude.foldl (moreHelp actions) (insertInfoSet forest actions infoSet) forest
-  moreHelp actions infoSet (action,Nothing) = DM.insertWith DS.union DS.empty (DS.singleton (actions++[action])) infoSet
+  moreHelp actions infoSet (action, Nothing) = DM.insertWith DS.union DS.empty (DS.singleton (actions++[action])) infoSet
   moreHelp actions infoSet (action, Just tree) = traverseHelp infoSet (GameTypes.subForest tree) (actions++[action])
+
 
 insertInfoSet :: (Show player, Show action, Ord action) =>
   [(action, Maybe (GameTree player action) )] -> [action] -> (InformationSets action) -> (InformationSets action)
@@ -84,5 +86,14 @@ _P :: (Show player, Show action, Ord action) =>
 _P g h = (gameTraverse g h) >>= (\tree -> return (rootLabel tree))
 
 _H :: (Show action, Ord action) =>
-   (InformationSets action) -> DS.Set (History action) 
+   (InformationSets action) -> DS.Set (History action)
 _H infoSet = Prelude.foldl DS.union DS.empty (DM.elems infoSet)
+
+_Z :: (Eq action, Ord action) =>
+  (GameTree player action) -> DS.Set (History action)
+_Z g = help DS.empty (subForest g) []
+  where
+  help hSet forest actions = foldl (moreHelp actions) hSet forest
+  --help hSet forest actions = foldl (\set -> \elem -> moreHelp actions set elem) hSet forest
+  moreHelp actions set (action, Nothing) = DS.union set (DS.singleton (actions++[action]))
+  moreHelp actions set (action, Just tree) = help set (subForest tree) (actions++[action])
