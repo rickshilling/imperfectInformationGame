@@ -5,7 +5,7 @@ module GameFunctions
     putStrGameTree,
     putStrMaybeGameTree,
     getInformationMap,
-    insertInfoSet,
+    insertInfoMap,
     getActions,
     sameInfoSet,
     _A,
@@ -55,13 +55,13 @@ getInformationMap :: (Show player, Show action, Ord action) =>
   (GameTree player action) -> (InformationMap action)
 getInformationMap tree = traverseHelp DM.empty (GameTypes.subForest tree) []
   where
-  traverseHelp infoSet forest actions = Prelude.foldl (moreHelp actions) (insertInfoSet forest actions infoSet) forest
-  moreHelp actions infoSet (action, Nothing) = DM.insertWith DS.union DS.empty (DS.singleton (actions++[action])) infoSet
-  moreHelp actions infoSet (action, Just tree) = traverseHelp infoSet (GameTypes.subForest tree) (actions++[action])
+  traverseHelp infoMap forest actions = Prelude.foldl (moreHelp actions) (insertInfoMap forest actions infoMap) forest
+  moreHelp actions infoMap (action, Nothing) = DM.insertWith DS.union DS.empty (DS.singleton (actions++[action])) infoMap
+  moreHelp actions infoMap (action, Just tree) = traverseHelp infoMap (GameTypes.subForest tree) (actions++[action])
 
-insertInfoSet :: (Show player, Show action, Ord action) =>
+insertInfoMap :: (Show player, Show action, Ord action) =>
   [(action, Maybe (GameTree player action) )] -> [action] -> (InformationMap action) -> (InformationMap action)
-insertInfoSet forest actions infoSet = DM.insertWith DS.union (getActions forest) (DS.singleton actions) infoSet
+insertInfoMap forest actions infoMap = DM.insertWith DS.union (getActions forest) (DS.singleton actions) infoMap
 
 getActions :: (Show player, Show action, Ord action) =>
   [(action, Maybe (GameTree player action))] -> DS.Set action
@@ -86,7 +86,7 @@ _P g h = (gameTraverse g h) >>= (\tree -> return (rootLabel tree))
 
 _H :: (Show action, Ord action) =>
    (InformationMap action) -> DS.Set (History action)
-_H infoSet = Prelude.foldl DS.union DS.empty (DM.elems infoSet)
+_H infoMap = Prelude.foldl DS.union DS.empty (DM.elems infoMap)
 
 _Z :: (Eq action, Ord action) =>
   (GameTree player action) -> DS.Set (History action)
