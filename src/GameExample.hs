@@ -51,4 +51,5 @@ sigma g = \h -> \a -> helper (gameTraverse g h) a
   helper Nothing _ = 0 :: Float
   helper (Just subTree) a = helper2 (getActions (subForest subTree)) a
   helper2 actionSet a = if Data.Set.member a actionSet then (fromIntegral 1) / (fromIntegral (Data.Set.size actionSet))
-                        else 0 :: Float 
+                        else 0 :: Float
+
