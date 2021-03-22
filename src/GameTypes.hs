@@ -21,7 +21,8 @@ type Sigma action = History action -> action -> Float
 
 newtype NewHistory action = NewHistory [action] deriving (Eq, Show, Ord)
 newtype NewChoices action = NewChoices {choices :: Set action } deriving (Eq, Show, Ord)
-newtype NewInformationSet action = NewInformationSet {infoSet :: Set (NewHistory action)} deriving (Eq, Show, Ord)
+newtype NewInformationSet action = NewInformationSet {
+  infoSet :: Set (NewHistory action)} deriving (Eq, Show, Ord)
 newtype NewInformationMap action = NewInformationMap {
   infoMap :: Map (NewChoices action) (NewInformationSet action)
   } deriving (Eq, Show, Ord)
