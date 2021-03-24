@@ -4,7 +4,10 @@ module GameTypes
   History(..),
   Sigma(..),
   InformationMap(..),
-  NewHistory(..)
+  NewHistory(..),
+  NewChoices(..),
+  NewInformationSet(..),
+  NewInformationMap(..)
   ) where
 import Control.Monad
 import Data.Map
@@ -32,15 +35,6 @@ newtype NewInformationSet action = NewInformationSet {
 newtype NewInformationMap action = NewInformationMap {
   infoMap :: Map (NewChoices action) (NewInformationSet action)
   } deriving (Eq, Show, Ord)
-
-data NewPlayer = NP1 | NP2 | NChance deriving (Eq,Show)
-data NewAction = NHeads | NTails | NActionLeft | NActionRight | NForfeit deriving (Eq,Ord,Show)
-
-nh = NewHistory [NHeads,NTails]
-nc = NewChoices (DS.fromList [NHeads,NHeads])
-lnh = [NewHistory [NHeads,NTails], NewHistory [NActionLeft,NActionRight]]
-sng = DS.fromList lnh
-pln = NewInformationSet $ DS.fromList [NewHistory [NHeads,NTails], NewHistory [NActionLeft,NActionRight]]
 
 class MyGame action where
    h :: action

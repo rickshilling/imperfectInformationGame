@@ -1,6 +1,7 @@
 module GameFunctions
     (
     gameTraverse,
+    newGameTraverse,
     drawGameTree,
     putStrGameTree,
     putStrMaybeGameTree,
@@ -17,6 +18,7 @@ module GameFunctions
 import GameTypes
 import qualified Data.Map as DM
 import qualified Data.Set as DS
+import qualified Data.List as DL
 
 gameTraverse :: (Eq action) =>
   (GameTree player action) -> [action] -> Maybe (GameTree player action)
@@ -28,6 +30,14 @@ gameTraverse (GameNode p ((currA, Nothing):rForests)) (refA:as) =
 gameTraverse (GameNode p ((currA,Just mTree):rForests)) (refA:as) =
   if currA == refA then gameTraverse mTree as
   else gameTraverse (GameNode p rForests) (refA:as)
+
+newGameTraverse :: (Eq action) => GameTree player action -> NewHistory action -> Maybe (GameTree player action)
+newGameTraverse g (NewHistory []) = Just g
+newGameTraverse (GameNode p f) (NewHistory (a:as)) = do
+  actionTreePair <- DL.find (\x -> fst x == a) f
+  tree <- snd actionTreePair
+  finalTree <- newGameTraverse tree (NewHistory as)
+  return finalTree
 
 drawGameTree :: (Show player, Show action) =>
   (GameTree player action) -> [String]

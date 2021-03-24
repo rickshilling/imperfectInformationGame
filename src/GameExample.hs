@@ -4,7 +4,7 @@ module GameExample
 
 import GameTypes
 import GameFunctions
-import Data.Set
+import qualified Data.Set as DS
 
 data Player = P1 | P2 | Chance deriving (Eq,Show)
 data Action = Heads | Tails | ActionLeft | ActionRight | Forfeit deriving (Eq,Ord,Show)
@@ -50,6 +50,13 @@ sigma g = \h -> \a -> helper (gameTraverse g h) a
   where
   helper Nothing _ = 0 :: Float
   helper (Just subTree) a = helper2 (getActions (subForest subTree)) a
-  helper2 actionSet a = if Data.Set.member a actionSet then (fromIntegral 1) / (fromIntegral (Data.Set.size actionSet))
+  helper2 actionSet a = if DS.member a actionSet then (fromIntegral 1) / (fromIntegral (DS.size actionSet))
                         else 0 :: Float
 
+nh = NewHistory [Heads]
+nc = NewChoices (DS.fromList [Heads,Tails])
+lnh = [NewHistory [Tails], NewHistory [ActionLeft,ActionRight]]
+sng = DS.fromList lnh
+pln = NewInformationSet $ DS.fromList [NewHistory [Heads,Tails], NewHistory [ActionLeft,ActionRight]]
+
+newTree = newGameTraverse g nh
