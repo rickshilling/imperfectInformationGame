@@ -34,6 +34,3 @@ newtype NewInformationSet action = NewInformationSet {
 
 type NewInformationMap action = Map (NewChoices action) (NewInformationSet action)
 
-class MyGame action where
-   h :: action
-
