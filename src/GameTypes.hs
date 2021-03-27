@@ -32,9 +32,7 @@ newtype NewInformationSet action = NewInformationSet {
   infoSet :: Set (NewHistory action)
   } deriving (Eq, Show, Ord)
 
-newtype NewInformationMap action = NewInformationMap {
-  infoMap :: Map (NewChoices action) (NewInformationSet action)
-  } deriving (Eq, Show, Ord)
+type NewInformationMap action = Map (NewChoices action) (NewInformationSet action)
 
 class MyGame action where
    h :: action

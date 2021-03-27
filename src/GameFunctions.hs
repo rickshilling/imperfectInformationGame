@@ -69,9 +69,30 @@ getInformationMap tree = traverseHelp DM.empty (GameTypes.subForest tree) []
   moreHelp actions infoMap (action, Nothing) = DM.insertWith DS.union DS.empty (DS.singleton (actions++[action])) infoMap
   moreHelp actions infoMap (action, Just tree) = traverseHelp infoMap (GameTypes.subForest tree) (actions++[action])
 
+{-
+getNewInfoMap :: (Ord action) => (GameTree player action) -> (NewInformationMap action)
+getNewInfoMap g = foldl (\infoMap -> \pair -> help (NewHistory []) infoMap pair) DM.empty (subForest g)
+  where
+    help (NewHistory as) infoMap pair = DM.insertWith DS.union (getChoices )
+-}
+
 insertInfoMap :: (Show player, Show action, Ord action) =>
   [(action, Maybe (GameTree player action) )] -> [action] -> (InformationMap action) -> (InformationMap action)
 insertInfoMap forest actions infoMap = DM.insertWith DS.union (getActions forest) (DS.singleton actions) infoMap
+{-
+insertNewInfoMap :: (Ord action) =>
+  [(action, Maybe (GameTree player action) )] -> NewHistory action -> (NewInformationMap action) -> (NewInformationMap action)
+insertNewInfoMap forest newHistory infoMap = DM.insertWith
+  unionNewChoice
+  (getNewChoices forest)
+  DS.empty --(NewInformationSet (DS.singleton newHistory))
+  infoMap
+-}
+unionNewChoice :: (Ord action) => NewChoices action -> NewChoices action -> NewChoices action
+unionNewChoice a b = NewChoices (DS.union (choices a) (choices b))
+
+getNewChoices :: (Ord action) => [(action, Maybe (GameTree player action))] -> NewChoices action
+getNewChoices forest = NewChoices $ foldl (\set -> \e -> DS.union set (DS.singleton (fst e))) DS.empty forest
 
 getActions :: (Show player, Show action, Ord action) =>
   [(action, Maybe (GameTree player action))] -> DS.Set action

@@ -49,7 +49,7 @@ _P h = (helper . gameTraverse g) h
   where
     helper Nothing = Nothing
     helper (Just myGameNode) = Just (GameTypes.rootLabel myGameNode)
---}
+-}
 {-
 
 _I :: [Action] -> Set [Action]
