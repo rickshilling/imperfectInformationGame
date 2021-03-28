@@ -79,17 +79,29 @@ getNewInfoMap g = foldl (\infoMap -> \pair -> help (NewHistory []) infoMap pair)
 insertInfoMap :: (Show player, Show action, Ord action) =>
   [(action, Maybe (GameTree player action) )] -> [action] -> (InformationMap action) -> (InformationMap action)
 insertInfoMap forest actions infoMap = DM.insertWith DS.union (getActions forest) (DS.singleton actions) infoMap
-{-
+
 insertNewInfoMap :: (Ord action) =>
   [(action, Maybe (GameTree player action) )] -> NewHistory action -> (NewInformationMap action) -> (NewInformationMap action)
-insertNewInfoMap forest newHistory infoMap = DM.insertWith
-  unionNewChoice
+insertNewInfoMap forest history infoMap = DM.insertWith
+  unionNewInfoSet
   (getNewChoices forest)
-  DS.empty --(NewInformationSet (DS.singleton newHistory))
+  (NewInformationSet (DS.singleton history)) -- (NewInformationSet DS.empty) --
   infoMap
--}
+
+is1 = NewInformationSet DS.empty
+is2 = NewInformationSet $ DS.fromList [NewHistory ([1,2,3] :: [Int]) ,NewHistory ([4,5,6] :: [Int])]
+c1  = NewChoices $ DS.fromList ([7,8,9] :: [Int])
+c2  = NewChoices $ DS.fromList ([10,11,12] :: [Int])
+im = (DM.empty) :: NewInformationMap Int
+
+--imp  = DM.insertWith
+--type NewInformationMap action = Map (NewChoices action) (NewInformationSet action)
+
 unionNewChoice :: (Ord action) => NewChoices action -> NewChoices action -> NewChoices action
 unionNewChoice a b = NewChoices (DS.union (choices a) (choices b))
+
+unionNewInfoSet :: (Ord action) => NewInformationSet action -> NewInformationSet action -> NewInformationSet action
+unionNewInfoSet a b = NewInformationSet $ (DS.union (infoSet a) (infoSet b))
 
 getNewChoices :: (Ord action) => [(action, Maybe (GameTree player action))] -> NewChoices action
 getNewChoices forest = NewChoices $ foldl (\set -> \e -> DS.union set (DS.singleton (fst e))) DS.empty forest
