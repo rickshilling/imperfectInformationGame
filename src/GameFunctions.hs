@@ -72,9 +72,13 @@ getInformationMap tree = traverseHelp DM.empty (GameTypes.subForest tree) []
 getNewInfoMap :: (Ord action) => (GameTree player action) -> (NewInformationMap action)
 getNewInfoMap g = traverseHelp DM.empty (GameTypes.subForest g) (NewHistory [])
   where
-  traverseHelp infoMap forest actions = Prelude.foldl (moreHelp actions) (insertNewInfoMap forest actions infoMap) forest
-  moreHelp actions infoMap (action, Nothing) = DM.insertWith
-  moreHelp actions infoMap (action, Just tree) = infoMap
+  traverseHelp infoMap forest history = Prelude.foldl (moreHelp2 history) (insertNewInfoMap forest history infoMap) forest
+ 
+moreHelp2 :: (Ord action) => NewHistory action -> (NewInformationMap action) -> (action, Maybe (GameTree player action))) -> (NewInformationMap action)
+moreHelp2 history infoMap (action, Nothing) = infoMap --DM.insertWith unionNewInfoSet (NewChoices DS.empty) (NewInformationMap DM.empty) --infoMap
+  --moreHelp history infoMap (action, Nothing) = infoMap
+  --moreHelp actionHistory infoMap (action, Nothing) = DM.insertWith unionNewInfoSet (NewChoices DS.empty) infoMap 
+  --moreHelp actionHistory infoMap (action, Just tree) = infoMap
 {-
 getNewInfoMap :: (Ord action) => (GameTree player action) -> (NewInformationMap action)
 getNewInfoMap g = foldl (\infoMap -> \pair -> help (NewHistory []) infoMap pair) DM.empty (subForest g)
