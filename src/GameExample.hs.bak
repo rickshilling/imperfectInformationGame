@@ -52,3 +52,11 @@ sigma g = \h -> \a -> helper (gameTraverse g h) a
   helper (Just subTree) a = helper2 (getActions (subForest subTree)) a
   helper2 actionSet a = if DS.member a actionSet then (fromIntegral 1) / (fromIntegral (DS.size actionSet))
                         else 0 :: Float
+
+nh = NewHistory [Heads]
+nc = NewChoices (DS.fromList [Heads,Tails])
+lnh = [NewHistory [Tails], NewHistory [ActionLeft,ActionRight]]
+sng = DS.fromList lnh
+pln = NewInformationSet $ DS.fromList [NewHistory [Heads,Tails], NewHistory [ActionLeft,ActionRight]]
+
+newTree = newGameTraverse g nh
