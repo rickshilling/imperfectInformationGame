@@ -1,0 +1,3 @@
+GameFunctions.hs.bak
+GameExample.hs.bak
+Lib.hs
