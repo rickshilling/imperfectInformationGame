@@ -1,0 +1,354 @@
+module GameTypes
+  (
+  GameTree(..),
+  History(..),
+  Sigma(..),
+  InformationMap(..),
+  NewHistory(..),
+  NewChoices(..),
+  NewInformationSet(..),
+  NewInformationMap(..)
+  ) where
+import Control.Monad
+import Data.Map
+import Data.Set
+import qualified Data.Set as DS
+data GameTree player action = GameNode {
+  rootLabel :: player,
+  subForest :: [(action, Maybe (GameTree player action))]
+}
+type History action = [action]
+type InformationSet action = Set (History action)
+type InformationMap action = Map (Set action) (InformationSet action)
+type Sigma action = History action -> action -> Float
+
+newtype NewHistory action = NewHistory [action] deriving (Eq, Show, Ord)
+
+newtype NewChoices action = NewChoices {
+  choices :: Set action
+  } deriving (Eq, Show, Ord)
+
+newtype NewInformationSet action = NewInformationSet {
+  infoSet :: Set (NewHistory action)
+  } deriving (Eq, Show, Ord)
+
+type NewInformationMap action = Map (NewChoices action) (NewInformationSet action)
+
+module GameFunctions
+    (
+    gameTraverse,
+    newGameTraverse,
+    drawGameTree,
+    putStrGameTree,
+    putStrMaybeGameTree,
+    getInformationMap,
+    insertInfoMap,
+    getActions,
+    sameInfoSet,
+    _A,
+    _P,
+    _H,
+    _Z
+    ) where
+
+import GameTypes
+import qualified Data.Map as DM
+import qualified Data.Set as DS
+import qualified Data.List as DL
+
+gameTraverse :: (Eq action) =>
+  (GameTree player action) -> [action] -> Maybe (GameTree player action)
+gameTraverse t [] = Just t
+gameTraverse (GameNode p []) (refA:as) = Nothing
+gameTraverse (GameNode p ((currA, Nothing):rForests)) (refA:as) =
+  if currA == refA then Nothing
+  else gameTraverse (GameNode p rForests) (refA:as)
+gameTraverse (GameNode p ((currA,Just mTree):rForests)) (refA:as) =
+  if currA == refA then gameTraverse mTree as
+  else gameTraverse (GameNode p rForests) (refA:as)
+
+newGameTraverse :: (Eq action) => GameTree player action -> NewHistory action -> Maybe (GameTree player action)
+newGameTraverse g (NewHistory []) = Just g
+newGameTraverse (GameNode p f) (NewHistory (a:as)) = do
+  actionTreePair <- DL.find (\x -> fst x == a) f
+  tree <- snd actionTreePair
+  finalTree <- newGameTraverse tree (NewHistory as)
+  return finalTree
+
+drawGameTree :: (Show player, Show action) =>
+  (GameTree player action) -> [String]
+drawGameTree (GameNode p forest) = (lines (show p)) ++ (drawSubTrees forest)
+  where
+    drawSubTrees [] = []
+    drawSubTrees [(a, Nothing)] =  (show a) : []
+    drawSubTrees [(a, Just gt)] =
+      "|" : (show a) : shift "`-" "   " (drawGameTree gt)
+    drawSubTrees ((a, Nothing):restForest) = (show a) : drawSubTrees restForest
+    drawSubTrees ((a, Just gt):restForest) =
+      "|" : (show a) : shift "+-" "|  " (drawGameTree gt) ++ (drawSubTrees restForest)
+    shift first other = zipWith (++) (first : repeat other)
+
+putStrGameTree :: (Show player, Show action) =>
+  (GameTree player action)  -> IO ()
+putStrGameTree g = putStr $ (unlines . drawGameTree) g
+
+putStrMaybeGameTree :: (Show player, Show action) =>
+  Maybe (GameTree player action) -> IO ()
+putStrMaybeGameTree Nothing = putStrLn "Nothing"
+putStrMaybeGameTree (Just gt) = putStrGameTree gt
+
+getInformationMap :: (Show player, Show action, Ord action) =>
+  (GameTree player action) -> (InformationMap action)
+getInformationMap tree = traverseHelp DM.empty (GameTypes.subForest tree) []
+  where
+  traverseHelp infoMap forest actions = Prelude.foldl (moreHelp actions) (insertInfoMap forest actions infoMap) forest
+  moreHelp actions infoMap (action, Nothing) = DM.insertWith DS.union DS.empty (DS.singleton (actions++[action])) infoMap
+  moreHelp actions infoMap (action, Just tree) = traverseHelp infoMap (GameTypes.subForest tree) (actions++[action])
+
+getNewInfoMap :: (Ord action) => (GameTree player action) -> (NewInformationMap action)
+getNewInfoMap g = traverseHelp DM.empty (GameTypes.subForest g) (NewHistory [])
+  where
+  traverseHelp infoMap forest history = Prelude.foldl (moreHelp2 history) (insertNewInfoMap forest history infoMap) forest
+ 
+moreHelp2 :: (Ord action) => NewHistory action -> (NewInformationMap action) -> (action, Maybe (GameTree player action))) -> (NewInformationMap action)
+moreHelp2 history infoMap (action, Nothing) = infoMap --DM.insertWith unionNewInfoSet (NewChoices DS.empty) (NewInformationMap DM.empty) --infoMap
+  --moreHelp history infoMap (action, Nothing) = infoMap
+  --moreHelp actionHistory infoMap (action, Nothing) = DM.insertWith unionNewInfoSet (NewChoices DS.empty) infoMap 
+  --moreHelp actionHistory infoMap (action, Just tree) = infoMap
+{-
+getNewInfoMap :: (Ord action) => (GameTree player action) -> (NewInformationMap action)
+getNewInfoMap g = foldl (\infoMap -> \pair -> help (NewHistory []) infoMap pair) DM.empty (subForest g)
+  where
+    help (NewHistory as) infoMap pair = DM.insertWith DS.union (getChoices )
+-}
+
+insertInfoMap :: (Show player, Show action, Ord action) =>
+  [(action, Maybe (GameTree player action) )] -> [action] -> (InformationMap action) -> (InformationMap action)
+insertInfoMap forest actions infoMap = DM.insertWith DS.union (getActions forest) (DS.singleton actions) infoMap
+
+insertNewInfoMap :: (Ord action) =>
+  [(action, Maybe (GameTree player action) )] -> NewHistory action -> (NewInformationMap action) -> (NewInformationMap action)
+insertNewInfoMap forest history infoMap = DM.insertWith
+  unionNewInfoSet
+  (getNewChoices forest)
+  (NewInformationSet (DS.singleton history)) -- (NewInformationSet DS.empty) --
+  infoMap
+
+is1 = NewInformationSet DS.empty
+is2 = NewInformationSet $ DS.fromList [NewHistory ([1,2,3] :: [Int]) ,NewHistory ([4,5,6] :: [Int])]
+c1  = NewChoices $ DS.fromList ([7,8,9] :: [Int])
+c2  = NewChoices $ DS.fromList ([10,11,12] :: [Int])
+im = (DM.empty) :: NewInformationMap Int
+
+--imp  = DM.insertWith
+--type NewInformationMap action = Map (NewChoices action) (NewInformationSet action)
+
+unionNewChoice :: (Ord action) => NewChoices action -> NewChoices action -> NewChoices action
+unionNewChoice a b = NewChoices (DS.union (choices a) (choices b))
+
+unionNewInfoSet :: (Ord action) => NewInformationSet action -> NewInformationSet action -> NewInformationSet action
+unionNewInfoSet a b = NewInformationSet $ (DS.union (infoSet a) (infoSet b))
+
+getNewChoices :: (Ord action) => [(action, Maybe (GameTree player action))] -> NewChoices action
+getNewChoices forest = NewChoices $ foldl (\set -> \e -> DS.union set (DS.singleton (fst e))) DS.empty forest
+
+getActions :: (Show player, Show action, Ord action) =>
+  [(action, Maybe (GameTree player action))] -> DS.Set action
+getActions = Prelude.foldl (\set -> \element -> DS.union set (DS.singleton (fst element))) DS.empty
+
+sameInfoSet :: (Show player, Show action, Ord action) =>
+  (GameTree player action) -> History action -> History action -> Bool
+sameInfoSet tree a1 a2 = helper (gameTraverse tree a1) (gameTraverse tree a2)
+  where
+  helper Nothing   Nothing   = True
+  helper Nothing   _         = False
+  helper _         Nothing   = False
+  helper (Just t1) (Just t2) = (getActions (GameTypes.subForest t1)) == (getActions (GameTypes.subForest t2))
+
+_A :: (Show player, Show action, Ord action) =>
+  (GameTree player action) -> History action -> Maybe (DS.Set action)
+_A g h = (gameTraverse g h) >>= (\tree -> return (getActions (subForest tree)))
+
+_P :: (Show player, Show action, Ord action) =>
+  (GameTree player action) -> History action -> Maybe player
+_P g h = (gameTraverse g h) >>= (\tree -> return (rootLabel tree))
+
+_H :: (Show action, Ord action) =>
+   (InformationMap action) -> DS.Set (History action)
+_H infoMap = Prelude.foldl DS.union DS.empty (DM.elems infoMap)
+
+_Z :: (Eq action, Ord action) =>
+  (GameTree player action) -> DS.Set (History action)
+_Z g = help DS.empty (subForest g) []
+  where
+  help set forest actions = foldl (moreHelp actions) set forest
+  moreHelp actions set (action, Nothing) = DS.union set (DS.singleton (actions++[action]))
+  moreHelp actions set (action, Just tree) = help set (subForest tree) (actions++[action])
+module GameExample
+  (
+  )where
+
+import GameTypes
+import GameFunctions
+import qualified Data.Set as DS
+
+data Player = P1 | P2 | Chance deriving (Eq,Show)
+data Action = Heads | Tails | ActionLeft | ActionRight | Forfeit deriving (Eq,Ord,Show)
+
+g = GameNode Chance
+  [
+    (Heads, Just (GameNode P1
+                  [(ActionLeft, Nothing),
+                   (ActionRight, Just (GameNode P2
+                                       [(Heads, Nothing),
+                                        (Forfeit, Nothing),
+                                        (Tails, Nothing)
+                                       ]
+                                      )
+                   )
+                  ]
+                 )
+    ),
+    (Tails, Just (GameNode P1
+                  [(ActionLeft, Nothing),
+                   (ActionRight, Just (GameNode P2
+                                       [(Heads, Nothing),
+                                        (Forfeit, Nothing),
+                                        (Tails, Nothing)
+                                       ]
+                                      )
+                   )
+                  ]
+                 )
+    )
+  ] 
+
+infoMapOnG = getInformationMap g
+historyOnG = _H infoMapOnG
+terminalHistoryOnG = _Z g
+
+actionsFromHeads = (_A g [Heads])
+playerFromHeads = (_P g [Heads])
+
+sigma :: (Show player, Show action, Ord action, Eq action) =>
+  (GameTree player action) -> Sigma action
+sigma g = \h -> \a -> helper (gameTraverse g h) a
+  where
+  helper Nothing _ = 0 :: Float
+  helper (Just subTree) a = helper2 (getActions (subForest subTree)) a
+  helper2 actionSet a = if DS.member a actionSet then (fromIntegral 1) / (fromIntegral (DS.size actionSet))
+                        else 0 :: Float
+
+nh = NewHistory [Heads]
+nc = NewChoices (DS.fromList [Heads,Tails])
+lnh = [NewHistory [Tails], NewHistory [ActionLeft,ActionRight]]
+sng = DS.fromList lnh
+pln = NewInformationSet $ DS.fromList [NewHistory [Heads,Tails], NewHistory [ActionLeft,ActionRight]]
+
+newTree = newGameTraverse g nh
+{-# LANGUAGE FlexibleContexts #-}
+
+module Lib
+    (
+    ) where
+import Data.Tree
+import Data.Graph
+import Control.Monad
+import Data.Map
+import qualified Data.Map as DM
+import qualified Data.Set as DS
+import GameTypes
+import GameFunctions
+--import qualified Prelude as P
+
+{-
+getHistoryfromElement :: (Action, Maybe GameTree) -> Set [Action]
+getHistoryfromElement (currentAction, Nothing) = DS.fromList [[currentAction]]
+getHistoryfromElement (currentAction, Just gameTree) = DS.union (DS.map ([currentAction] ++ ) subSets) (DS.fromList [[currentAction]])
+  where
+    subSets = Prelude.foldl DS.union DS.empty (Prelude.map getHistoryfromElement (GameTypes.subForest gameTree))
+
+getHistories :: GameTree -> Set [Action]
+getHistories (GameNode _ []) = DS.empty
+getHistories (GameNode _ forest) = Prelude.foldl DS.union DS.empty (Prelude.map getHistoryfromElement forest)
+
+getTerminalHistoryfromElement :: (Action, Maybe GameTree) -> Set [Action]
+getTerminalHistoryfromElement (currentAction, Nothing) = Data.Set.fromList [[currentAction]]
+getTerminalHistoryfromElement (currentAction, Just gameTree) = Data.Set.map ([currentAction] ++ ) subSets
+  where
+    subSets = Prelude.foldl DS.union DS.empty (Prelude.map getTerminalHistoryfromElement (GameTypes.subForest gameTree)) 
+
+getTerminalHistories :: GameTree -> Set [Action]
+getTerminalHistories (GameNode _ []) = Data.Set.empty
+getTerminalHistories (GameNode _ forest) = Prelude.foldl Data.Set.union Data.Set.empty (Prelude.map getTerminalHistoryfromElement forest)
+
+_H = getHistories g
+
+_Z = getTerminalHistories g
+
+getActionSet :: GameTree -> [Action] -> Set Action
+getActionSet gameTree actions = (helper . gameTraverse gameTree) actions
+  where
+    helper Nothing = DS.empty
+    helper (Just gameTree) = DS.fromList $ Prelude.map fst (GameTypes.subForest gameTree)
+
+_P :: [Action] -> Maybe Player
+_P h = (helper . gameTraverse g) h
+  where
+    helper Nothing = Nothing
+    helper (Just myGameNode) = Just (GameTypes.rootLabel myGameNode)
+-}
+{-
+
+_I :: [Action] -> Set [Action]
+_I h = helper informationSets h
+  where
+    helper [] _ = empty
+    helper ((actionSet, infoSet):remainingInfoSets) h = if Data.Set.member h infoSet then infoSet else helper remainingInfoSets h
+
+actionsFromInformationSet :: (Set Action,Set [Action]) -> Set Action
+actionsFromInformationSet = fst
+
+__A = actionsFromInformationSet
+
+sigma :: (Set Action,Set [Action]) -> DM.Map Action Float
+sigma informationSet = undefined
+
+
+{-
+helper    (GameNode _ [])     _           currentInfo      = currentInfo
+helper    (GameNode _ forest) actionList  currentInfo      = Prelude.foldl (subhelper actionList) currentInfo forest
+  where
+    --subhelper :: ([Action] -> InformationSets -> (Action, Maybe GameTree) -> InformationSets)
+    subhelper       actionList  currentInfo        (currentAction, Nothing)  = DM.insertWith Data.Set.union (fromList $ Prelude.map fst forest) 
+-}
+{-
+data GameState = GameVariables {
+  myGameTree :: GameTree,
+  u :: DM.Map Int ((Set [Action]) -> Float),
+  _A :: [Action] -> Set Action
+}
+-}  --_I :: 
+
+--gs = GameVariables g DM.empty (getActionSet g)
+
+{-
+class (Eq a) => MyPlayers a where
+  players :: [a]
+data MyPlayer = undefined
+-}
+
+newtype MyPlayer = MakePlayer Integer
+
+toPlayer :: Integer -> MyPlayer
+toPlayer x | x < 0 = error "Can't create negative player index"
+           | otherwise = MakePlayer x
+
+x = toPlayer 3
+
+{-_A :: [Action] -> Set Action
+_A h = (helper . gameTraverse g) h
+  where
+    helper Nothing = empty
+    helper (Just gameTree) = fromList $ Prelude.map fst (GameTypes.subForest gameTree)
+-}
