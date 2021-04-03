@@ -3,6 +3,7 @@ module GameTypes
   GameTree(..),
   History(..),
   Sigma(..),
+  InformationSet(..),
   InformationMap(..)
   ) where
 import Control.Monad

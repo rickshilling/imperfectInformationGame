@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 module GameTypes
   (
   GameTree(..),
