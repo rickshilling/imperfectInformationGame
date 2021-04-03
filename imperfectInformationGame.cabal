@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 4cd4a40cee9b4bb75adb7e1ac9825c5c1643eb7ab0ca8073e80649f249ee9f95
+-- hash: 6397654b69ac47d2d6f790160075ebb70740aeda009399583e1201933f2ef5e5
 
 name:           imperfectInformationGame
 version:        0.1.0.0
@@ -30,7 +30,6 @@ library
       GameExample
       GameFunctions
       GameTypes
-      Lib
   other-modules:
       Paths_imperfectInformationGame
   hs-source-dirs:

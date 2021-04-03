@@ -11,7 +11,9 @@ module GameFunctions
     _A,
     _P,
     _H,
-    _Z
+    _Z,
+    getSetOfInfoSets,
+    _I
     ) where
 
 import GameTypes
@@ -77,22 +79,42 @@ sameInfoSet tree a1 a2 = helper (gameTraverse tree a1) (gameTraverse tree a2)
   helper _         Nothing   = False
   helper (Just t1) (Just t2) = (getActions (GameTypes.subForest t1)) == (getActions (GameTypes.subForest t2))
 
-_A :: (Show player, Show action, Ord action) =>
-  (GameTree player action) -> History action -> Maybe (DS.Set action)
+_A :: (Show player, Show action, Ord action) => (GameTree player action) -> History action -> Maybe (DS.Set action)
 _A g h = (gameTraverse g h) >>= (\tree -> return (getActions (subForest tree)))
 
-_P :: (Show player, Show action, Ord action) =>
-  (GameTree player action) -> History action -> Maybe player
+_P :: (Show player, Show action, Ord action) => (GameTree player action) -> History action -> Maybe player
 _P g h = (gameTraverse g h) >>= (\tree -> return (rootLabel tree))
 
-_H :: (Show action, Ord action) =>
-   (InformationMap action) -> DS.Set (History action)
+_H :: (Show action, Ord action) => (InformationMap action) -> DS.Set (History action)
 _H infoMap = Prelude.foldl DS.union DS.empty (DM.elems infoMap)
 
-_Z :: (Eq action, Ord action) =>
-  (GameTree player action) -> DS.Set (History action)
+_Z :: (Eq action, Ord action) => (GameTree player action) -> DS.Set (History action)
 _Z g = help DS.empty (subForest g) []
   where
   help set forest actions = foldl (moreHelp actions) set forest
   moreHelp actions set (action, Nothing) = DS.union set (DS.singleton (actions++[action]))
   moreHelp actions set (action, Just tree) = help set (subForest tree) (actions++[action])
+
+getSetOfInfoSets :: (Ord action) => InformationMap action -> DS.Set (InformationSet action)
+getSetOfInfoSets infoMap = DS.fromList $ DM.elems infoMap
+
+_I :: (Ord action) => DS.Set (InformationSet action) -> History action -> Maybe (InformationSet action)
+_I infoSets history = helper (DS.toList infoSets) history
+  where
+  helper []       _  = Nothing
+  helper (is:iss) hs = if DS.member hs is then Just is else helper iss hs
+
+-- --------------------------------------------------------------------
+{-
+_A_of_I :: (Show player, Show action, Ord action) =>
+  (InformationMap action) -> (InformationSet action) -> Maybe (DS.Set action)
+_A_of_I :: DL.find 
+-}
+{-
+_I :: (Show player, Show action, Ord action) => InformationMap action -> History action -> InformationSet action
+_I infoMap history = undefined --DM.member 
+
+-- Gets all histories for a given player
+_I_i :: (Show player, Show action, Ord action) => (GameTree player action) -> player -> DS.Set (History action)
+_I_i g i = undefined
+-}
