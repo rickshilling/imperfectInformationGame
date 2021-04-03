@@ -104,12 +104,13 @@ _I infoSets history = helper (DS.toList infoSets) history
   helper []       _  = Nothing
   helper (is:iss) hs = if DS.member hs is then Just is else helper iss hs
 
--- --------------------------------------------------------------------
-{-
-_A_of_I :: (Show player, Show action, Ord action) =>
+_AofI :: (Show player, Show action, Ord action) =>
   (InformationMap action) -> (InformationSet action) -> Maybe (DS.Set action)
-_A_of_I :: DL.find 
--}
+_AofI infoMap infoSet = undefined
+
+
+-- --------------------------------------------------------------------
+
 {-
 _I :: (Show player, Show action, Ord action) => InformationMap action -> History action -> InformationSet action
 _I infoMap history = undefined --DM.member 
