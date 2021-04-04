@@ -110,13 +110,7 @@ _I infoSets history = helper (DS.toList infoSets) history
   helper (is:iss) hs = if DS.member hs is then Just is else helper iss hs
 
 
--- --------------------------------------------------------------------
-
-{-
-_I :: (Show player, Show action, Ord action) => InformationMap action -> History action -> InformationSet action
-_I infoMap history = undefined --DM.member 
-
 -- Gets all histories for a given player
 _I_i :: (Show player, Show action, Ord action) => (GameTree player action) -> player -> DS.Set (History action)
 _I_i g i = undefined
--}
+
