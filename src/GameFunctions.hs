@@ -9,6 +9,7 @@ module GameFunctions
     getActions,
     sameInfoSet,
     _A,
+    _AofI,
     _P,
     _H,
     _Z,
@@ -82,6 +83,10 @@ sameInfoSet tree a1 a2 = helper (gameTraverse tree a1) (gameTraverse tree a2)
 _A :: (Show player, Show action, Ord action) => (GameTree player action) -> History action -> Maybe (DS.Set action)
 _A g h = (gameTraverse g h) >>= (\tree -> return (getActions (subForest tree)))
 
+_AofI :: (Show player, Show action, Ord action) =>
+  (GameTree player action) -> InformationSet action -> Maybe (DS.Set action)
+_AofI g infoSet = _A g (DS.elemAt 0 infoSet)
+
 _P :: (Show player, Show action, Ord action) => (GameTree player action) -> History action -> Maybe player
 _P g h = (gameTraverse g h) >>= (\tree -> return (rootLabel tree))
 
@@ -103,10 +108,6 @@ _I infoSets history = helper (DS.toList infoSets) history
   where
   helper []       _  = Nothing
   helper (is:iss) hs = if DS.member hs is then Just is else helper iss hs
-
-_AofI :: (Show player, Show action, Ord action) =>
-  (InformationMap action) -> (InformationSet action) -> Maybe (DS.Set action)
-_AofI infoMap infoSet = undefined
 
 
 -- --------------------------------------------------------------------

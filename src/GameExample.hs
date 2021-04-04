@@ -5,6 +5,7 @@ module GameExample
 import GameTypes
 import GameFunctions
 import qualified Data.Set as DS
+import qualified Data.Map as DM
 
 data Player = P1 | P2 | Chance deriving (Eq,Show)
 data Action = Heads | Tails | ActionLeft | ActionRight | Forfeit deriving (Eq,Ord,Show)
@@ -45,6 +46,7 @@ anInfoSetOfG = _I infoSetsOfG [Heads,ActionRight]
 
 actionsFromHeads = (_A g [Heads])
 playerFromHeads = (_P g [Heads])
+actionFromInfoSet = anInfoSetOfG >>= (_AofI g)
 
 sigma :: (Show player, Show action, Ord action, Eq action) =>
   (GameTree player action) -> Sigma action

@@ -4,7 +4,8 @@ module GameTypes
   History(..),
   Sigma(..),
   InformationSet(..),
-  InformationMap(..)
+  InformationMap(..),
+  HistoryMap(..)
   ) where
 import Control.Monad
 import Data.Map
