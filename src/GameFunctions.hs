@@ -14,7 +14,8 @@ module GameFunctions
     _H,
     _Z,
     getSetOfInfoSets,
-    _I
+    _I,
+    filterInfoSetByPlayer
     ) where
 
 import GameTypes
@@ -90,6 +91,7 @@ _AofI g infoSet = _A g (DS.elemAt 0 infoSet)
 _P :: (Show player, Show action, Ord action) => (GameTree player action) -> History action -> Maybe player
 _P g h = (gameTraverse g h) >>= (\tree -> return (rootLabel tree))
 
+
 _H :: (Show action, Ord action) => (InformationMap action) -> DS.Set (History action)
 _H infoMap = Prelude.foldl DS.union DS.empty (DM.elems infoMap)
 
@@ -109,8 +111,32 @@ _I infoSets history = helper (DS.toList infoSets) history
   helper []       _  = Nothing
   helper (is:iss) hs = if DS.member hs is then Just is else helper iss hs
 
+-- Gets information sets of a given player
+_II_i :: (Show player, Show action, Ord action) =>
+  (GameTree player action) -> DS.Set (InformationSet action) -> player -> DS.Set (InformationSet action)
+_II_i g inSetOfInfoSets i = DS.foldl (\outSetOfInfoSets -> \infoSet -> help g i outSetOfInfoSets infoSet) DS.empty inSetOfInfoSets
+  where
+  help g i outSetOfInfoSets infoSet = DS.foldl (\outInfoSet -> \h -> help2 g i h outInfoSet) DS.empty infoSet
+  help2 g i h infoSet = undefined --_P g
 
--- Gets all histories for a given player
-_I_i :: (Show player, Show action, Ord action) => (GameTree player action) -> player -> DS.Set (History action)
-_I_i g i = undefined
+filterInfoSetByPlayer :: (Show player, Show action, Ord action, Eq player) =>
+  (GameTree player action) -> player -> InformationSet action -> InformationSet action
+filterInfoSetByPlayer g p infoSet = DS.filter (\h -> (_P g h) == (Just p)) infoSet
 
+type Number = Int
+type MyWord = String
+
+
+
+
+
+
+add :: Number -> Number -> Number
+add n1 n2 = n1 + n2
+
+brothers :: MyWord  -> MyWord 
+brothers w = if w == "Mario" then "Luigi" else "Nothing"
+
+dinosaur :: Number -> MyWord -> MyWord
+dinosaur 1 w = w
+dinosaur n w = w ++ " " ++ (dinosaur (n-1) w)
