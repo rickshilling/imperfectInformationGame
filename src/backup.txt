@@ -352,3 +352,16 @@ _A h = (helper . gameTraverse g) h
     helper Nothing = empty
     helper (Just gameTree) = fromList $ Prelude.map fst (GameTypes.subForest gameTree)
 -}
+
+type Number = Int
+type MyWord = String
+
+add :: Number -> Number -> Number
+add n1 n2 = n1 + n2
+
+brothers :: MyWord  -> MyWord 
+brothers w = if w == "Mario" then "Luigi" else "Nothing"
+
+dinosaur :: Number -> MyWord -> MyWord
+dinosaur 1 w = w
+dinosaur n w = w ++ " " ++ (dinosaur (n-1) w)

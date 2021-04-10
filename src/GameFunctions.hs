@@ -122,21 +122,3 @@ _II_i g inSetOfInfoSets i = DS.foldl (\outSetOfInfoSets -> \infoSet -> help g i 
 filterInfoSetByPlayer :: (Show player, Show action, Ord action, Eq player) =>
   (GameTree player action) -> player -> InformationSet action -> InformationSet action
 filterInfoSetByPlayer g p infoSet = DS.filter (\h -> (_P g h) == (Just p)) infoSet
-
-type Number = Int
-type MyWord = String
-
-
-
-
-
-
-add :: Number -> Number -> Number
-add n1 n2 = n1 + n2
-
-brothers :: MyWord  -> MyWord 
-brothers w = if w == "Mario" then "Luigi" else "Nothing"
-
-dinosaur :: Number -> MyWord -> MyWord
-dinosaur 1 w = w
-dinosaur n w = w ++ " " ++ (dinosaur (n-1) w)
