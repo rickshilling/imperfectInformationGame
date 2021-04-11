@@ -15,7 +15,8 @@ module GameFunctions
     _Z,
     getSetOfInfoSets,
     _I,
-    filterInfoSetByPlayer
+    filterInfoSetByPlayer,
+    pureSet
     ) where
 
 import GameTypes
@@ -114,11 +115,15 @@ _I infoSets history = helper (DS.toList infoSets) history
 -- Gets information sets of a given player
 _II_i :: (Show player, Show action, Ord action) =>
   (GameTree player action) -> DS.Set (InformationSet action) -> player -> DS.Set (InformationSet action)
-_II_i g inSetOfInfoSets i = DS.foldl (\outSetOfInfoSets -> \infoSet -> help g i outSetOfInfoSets infoSet) DS.empty inSetOfInfoSets
+_II_i g inSets i = DS.foldl (\outSets -> \infoSet -> help g i outSets infoSet) DS.empty inSets
   where
-  help g i outSetOfInfoSets infoSet = DS.foldl (\outInfoSet -> \h -> help2 g i h outInfoSet) DS.empty infoSet
+  help g i outSets infoSet = DS.foldl (\outInfoSet -> \h -> help2 g i h outSets) DS.empty infoSet
   help2 g i h infoSet = undefined --_P g
 
 filterInfoSetByPlayer :: (Show player, Show action, Ord action, Eq player) =>
   (GameTree player action) -> player -> InformationSet action -> InformationSet action
 filterInfoSetByPlayer g p infoSet = DS.filter (\h -> (_P g h) == (Just p)) infoSet
+
+pureSet :: Maybe (DS.Set a) -> DS.Set a
+pureSet Nothing = DS.empty
+pureSet (Just set) = set

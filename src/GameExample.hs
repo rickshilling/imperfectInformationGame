@@ -43,7 +43,8 @@ infoSetsOfG = getSetOfInfoSets infoMapOfG
 historyOfG = _H infoMapOfG
 terminalHistoryOfG = _Z g
 anInfoSetOfG = _I infoSetsOfG [Heads,ActionRight]
---aFilteredInfoSet = filterInfoSetByPlayer g P2 anInfoSetOfG
+aFilteredInfoSetOfP1 = filterInfoSetByPlayer g P1 (pureSet anInfoSetOfG)
+aFilteredInfoSetOfP2 = filterInfoSetByPlayer g P2 (pureSet anInfoSetOfG)
 
 actionsFromHeads = (_A g [Heads])
 playerFromHeads = (_P g [Heads])
