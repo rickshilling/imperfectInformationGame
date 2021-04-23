@@ -6,6 +6,7 @@ import GameTypes
 import GameFunctions
 import qualified Data.Set as DS
 import qualified Data.Map as DM
+import qualified Data.Tree as DT
 
 data Player = P1 | P2 | Chance deriving (Eq,Show)
 data Action = Heads | Tails | ActionLeft | ActionRight | Forfeit deriving (Eq,Ord,Show)
@@ -58,3 +59,6 @@ sigma g = \h -> \a -> helper (gameTraverse g h) a
   helper (Just subTree) a = helper2 (getActions (subForest subTree)) a
   helper2 actionSet a = if DS.member a actionSet then (fromIntegral 1) / (fromIntegral (DS.size actionSet))
                         else 0 :: Float
+n1 = DT.Node 5 []
+n2 = DT.Node 4 [n1]
+
