@@ -10,6 +10,7 @@ import Control.Monad
 import Data.Map
 import Data.Set
 import qualified Data.Set as DS
+import Control.Monad.State hiding (State)
 
 data GameTree player action = GameNode {
   rootLabel :: player,
@@ -24,4 +25,11 @@ instance (Eq player, Eq action) => Eq (GameTree player action) where {
   GameNode r1 sf1 == GameNode r2 sf2 = (r1 == r2 && sf1 == sf2)
 };
 
+data GameState player action = GameState {
+  location :: History action,
+  game :: GameTree player action
+}
 
+data GameMonad player action output = GameMonad {
+  unGameMonad :: StateT (GameState player action) IO output
+}
