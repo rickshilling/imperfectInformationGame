@@ -23,6 +23,7 @@ import GameTypes
 import qualified Data.Map as DM
 import qualified Data.Set as DS
 import qualified Data.List as DL
+import qualified Data.Tree as DT
 
 gameTraverse :: (Eq action) =>
   (GameTree player action) -> [action] -> Maybe (GameTree player action)
@@ -127,3 +128,13 @@ filterInfoSetByPlayer g p infoSet = DS.filter (\h -> (_P g h) == (Just p)) infoS
 pureSet :: Maybe (DS.Set a) -> DS.Set a
 pureSet Nothing = DS.empty
 pureSet (Just set) = set
+
+--drawNewGameTree :: (Show player, Show action) => NewGameTree player action -> IO ()
+--drawNewGameTree = putStr $ DT.drawTree $ fmap show 
+
+s :: (Show player, Show action) => TreeElement player action -> String
+s = show
+
+ss :: (Show player, Show action) => NewGameTree player action -> DT.Tree String
+ss g = fmap $ show g
+

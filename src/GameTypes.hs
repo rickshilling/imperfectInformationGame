@@ -4,7 +4,10 @@ module GameTypes
   History(..),
   Sigma(..),
   InformationSet(..),
-  InformationMap(..)
+  InformationMap(..),
+  GameState(..),
+  TreeElement(..),
+  NewGameTree(..)
   ) where
 import Control.Monad
 import Data.Map
@@ -30,6 +33,14 @@ data GameState player action = GameState {
   game :: GameTree player action
 }
 
-data GameMonad player action output = GameMonad {
-  unGameMonad :: StateT (GameState player action) IO output
-}
+data TreeElement player action = TreeElement {
+  getPlayer  :: Maybe player,
+  fromAction :: Maybe action
+} 
+
+instance (Show player, Show action) => Show (TreeElement player action) where {
+  show (TreeElement p a) = show p ++ ", " ++ show a
+};
+
+data NewGameTree player action = Tree (TreeElement player action)
+

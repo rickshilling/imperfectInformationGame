@@ -4,12 +4,32 @@ module GameExample
 
 import GameTypes
 import GameFunctions
-import qualified Data.Set as DS
 import qualified Data.Map as DM
+import qualified Data.Set as DS
 import qualified Data.Tree as DT
 
 data Player = P1 | P2 | Chance deriving (Eq,Show)
 data Action = Heads | Tails | ActionLeft | ActionRight | Forfeit deriving (Eq,Ord,Show)
+
+gg =
+  DT.Node (TreeElement (Just Chance) Nothing) [
+  DT.Node (TreeElement (Just P1)     (Just Heads)) [
+      DT.Node (TreeElement (Nothing) (Just ActionLeft)) [],
+      DT.Node (TreeElement (Just P2) (Just ActionRight)) [
+          DT.Node (TreeElement (Nothing) (Just Heads)) [],
+          DT.Node (TreeElement (Nothing) (Just Forfeit)) [],
+          DT.Node (TreeElement (Nothing) (Just Tails)) []
+                                                         ]
+                                                   ],
+  DT.Node (TreeElement (Just P1)     (Just Tails)) [
+      DT.Node (TreeElement (Nothing) (Just ActionLeft)) [],
+      DT.Node (TreeElement (Just P2) (Just ActionRight)) [
+          DT.Node (TreeElement (Nothing) (Just Heads)) [],
+          DT.Node (TreeElement (Nothing) (Just Forfeit)) [],
+          DT.Node (TreeElement (Nothing) (Just Tails)) []
+                                                         ]
+                                                   ]
+                                              ]
 
 g = GameNode Chance
   [
@@ -62,3 +82,4 @@ sigma g = \h -> \a -> helper (gameTraverse g h) a
 n1 = DT.Node 5 []
 n2 = DT.Node 4 [n1]
 
+gameStateIntance = GameState [] g

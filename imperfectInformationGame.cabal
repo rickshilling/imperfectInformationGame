@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 6397654b69ac47d2d6f790160075ebb70740aeda009399583e1201933f2ef5e5
+-- hash: f45b6b81ec3d6b6acf73a025f06cebdbcc2f3aa9f4a4ec7d2295d6dcdcabded0
 
 name:           imperfectInformationGame
 version:        0.1.0.0
@@ -37,6 +37,7 @@ library
   build-depends:
       base >=4.7 && <5
     , containers
+    , mtl
   default-language: Haskell2010
 
 executable imperfectInformationGame-exe
@@ -50,6 +51,7 @@ executable imperfectInformationGame-exe
       base >=4.7 && <5
     , containers
     , imperfectInformationGame
+    , mtl
   default-language: Haskell2010
 
 test-suite imperfectInformationGame-test
@@ -64,4 +66,5 @@ test-suite imperfectInformationGame-test
       base >=4.7 && <5
     , containers
     , imperfectInformationGame
+    , mtl
   default-language: Haskell2010
