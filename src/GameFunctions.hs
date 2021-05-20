@@ -16,7 +16,8 @@ module GameFunctions
     getSetOfInfoSets,
     _I,
     filterInfoSetByPlayer,
-    pureSet
+    pureSet,
+    drawNewGameTree
     ) where
 
 import GameTypes
@@ -129,12 +130,16 @@ pureSet :: Maybe (DS.Set a) -> DS.Set a
 pureSet Nothing = DS.empty
 pureSet (Just set) = set
 
+showTreeElement :: (Show player, Show action) => TreeElement player action -> String
+showTreeElement = show
+
 --drawNewGameTree :: (Show player, Show action) => NewGameTree player action -> IO ()
---drawNewGameTree = putStr $ DT.drawTree $ fmap show 
+drawNewGameTree :: (Show player, Show action) => DT.Tree (TreeElement player action) -> IO ()
+drawNewGameTree gt = putStr $ DT.drawTree $ fmap showTreeElement gt
 
-s :: (Show player, Show action) => TreeElement player action -> String
-s = show
-
-ss :: (Show player, Show action) => NewGameTree player action -> DT.Tree String
-ss g = fmap $ show g
+{-
+ss :: (Show player, Show action) => DT.Tree (TreeElement player action) -> DT.Tree String
+ss gt = fmap showTreeElement gt
+-}
+--ss g = fmap (s :: (TreeElement player action -> String)) g
 
