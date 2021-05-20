@@ -137,9 +137,4 @@ showTreeElement = show
 drawNewGameTree :: (Show player, Show action) => DT.Tree (TreeElement player action) -> IO ()
 drawNewGameTree gt = putStr $ DT.drawTree $ fmap showTreeElement gt
 
-{-
-ss :: (Show player, Show action) => DT.Tree (TreeElement player action) -> DT.Tree String
-ss gt = fmap showTreeElement gt
--}
---ss g = fmap (s :: (TreeElement player action -> String)) g
 
