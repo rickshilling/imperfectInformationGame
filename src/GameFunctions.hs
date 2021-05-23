@@ -21,7 +21,8 @@ module GameFunctions
     --compareAction,
     stepTree,
     drawMaybeGameTree,
-    traverseTree
+    traverseTree,
+    getNewActions
     ) where
 
 import GameTypes
@@ -136,6 +137,10 @@ pureSet :: Maybe (DS.Set a) -> DS.Set a
 pureSet Nothing = DS.empty
 pureSet (Just set) = set
 
+maybeToSet :: Maybe a -> DS.Set a
+maybeToSet Nothing = DS.empty
+maybeToSet (Just e) = DS.singleton e
+
 --
 
 showTreeElement :: (Show player, Show action) => TreeElement player action -> String
@@ -159,3 +164,6 @@ stepTree gt a = DL.find (\t -> (Just a == (fromAction $ DT.rootLabel t)) ) (DT.s
 traverseTree :: (Eq action) => DT.Tree (TreeElement player action) -> [action] -> Maybe (DT.Tree (TreeElement player action))
 traverseTree gt [] = Just gt
 traverseTree gt (a:as) = (stepTree gt a) >>= (\t -> traverseTree t as)
+
+getNewActions :: (Show player, Show action, Ord action) => DT.Tree (TreeElement player action) -> DS.Set action
+getNewActions gt = Prelude.foldl (\set -> \element -> DS.union set (maybeToSet (fromAction $ DT.rootLabel element))) DS.empty (DT.subForest gt)
