@@ -6,8 +6,7 @@ module GameTypes
   InformationSet(..),
   InformationMap(..),
   GameState(..),
-  TreeElement(..),
-  NewGameTree(..)
+  TreeElement(..)
   ) where
 import Control.Monad
 import Data.Map
@@ -36,11 +35,12 @@ data GameState player action = GameState {
 data TreeElement player action = TreeElement {
   getPlayer  :: Maybe player,
   fromAction :: Maybe action
-} 
+}
 
 instance (Show player, Show action) => Show (TreeElement player action) where {
   show (TreeElement p a) = show p ++ ", " ++ show a
 };
 
-data NewGameTree player action = Tree (TreeElement player action)
-
+instance (Eq player, Eq action) => Eq (TreeElement player action) where {
+  TreeElement p1 a1 == TreeElement p2 a2 = (p1==p2) && (a1==a2)
+  };

@@ -7,6 +7,7 @@ import GameFunctions
 import qualified Data.Map as DM
 import qualified Data.Set as DS
 import qualified Data.Tree as DT
+import qualified Control.Monad as CM
 
 data Player = P1 | P2 | Chance deriving (Eq,Show)
 data Action = Heads | Tails | ActionLeft | ActionRight | Forfeit deriving (Eq,Ord,Show)

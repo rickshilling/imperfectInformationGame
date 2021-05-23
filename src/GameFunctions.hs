@@ -1,9 +1,9 @@
 module GameFunctions
     (
     gameTraverse,
-    drawGameTree,
-    putStrGameTree,
-    putStrMaybeGameTree,
+    --drawGameTree,
+    --putStrGameTree,
+    --putStrMaybeGameTree,
     getInformationMap,
     insertInfoMap,
     getActions,
@@ -17,7 +17,11 @@ module GameFunctions
     _I,
     filterInfoSetByPlayer,
     pureSet,
-    drawNewGameTree
+    drawGameTree,
+    --compareAction,
+    stepTree,
+    drawMaybeGameTree,
+    traverseTree
     ) where
 
 import GameTypes
@@ -25,6 +29,7 @@ import qualified Data.Map as DM
 import qualified Data.Set as DS
 import qualified Data.List as DL
 import qualified Data.Tree as DT
+import qualified Control.Monad as CM
 
 gameTraverse :: (Eq action) =>
   (GameTree player action) -> [action] -> Maybe (GameTree player action)
@@ -36,7 +41,7 @@ gameTraverse (GameNode p ((currA, Nothing):rForests)) (refA:as) =
 gameTraverse (GameNode p ((currA,Just mTree):rForests)) (refA:as) =
   if currA == refA then gameTraverse mTree as
   else gameTraverse (GameNode p rForests) (refA:as)
-
+{-
 drawGameTree :: (Show player, Show action) =>
   (GameTree player action) -> [String]
 drawGameTree (GameNode p forest) = (lines (show p)) ++ (drawSubTrees forest)
@@ -58,6 +63,7 @@ putStrMaybeGameTree :: (Show player, Show action) =>
   Maybe (GameTree player action) -> IO ()
 putStrMaybeGameTree Nothing = putStrLn "Nothing"
 putStrMaybeGameTree (Just gt) = putStrGameTree gt
+-}
 
 getInformationMap :: (Show player, Show action, Ord action) =>
   (GameTree player action) -> (InformationMap action)
@@ -130,11 +136,26 @@ pureSet :: Maybe (DS.Set a) -> DS.Set a
 pureSet Nothing = DS.empty
 pureSet (Just set) = set
 
+--
+
 showTreeElement :: (Show player, Show action) => TreeElement player action -> String
 showTreeElement = show
 
---drawNewGameTree :: (Show player, Show action) => NewGameTree player action -> IO ()
-drawNewGameTree :: (Show player, Show action) => DT.Tree (TreeElement player action) -> IO ()
-drawNewGameTree gt = putStr $ DT.drawTree $ fmap showTreeElement gt
+drawGameTree :: (Show player, Show action) => DT.Tree (TreeElement player action) -> IO ()
+drawGameTree gt = putStr $ DT.drawTree $ fmap showTreeElement gt
 
+drawMaybeGameTree :: (Show player, Show action) => Maybe (DT.Tree (TreeElement player action)) -> IO ()
+drawMaybeGameTree (Just gt) = drawGameTree gt
+drawMaybeGameTree Nothing = return ()
 
+{-
+compareAction :: (Eq action) => DT.Tree (TreeElement player action) -> action -> Maybe Bool
+compareAction t a = liftM (== a) (fromAction $ DT.rootLabel t)
+-}
+
+stepTree :: (Eq action) => DT.Tree (TreeElement player action) -> action -> Maybe (DT.Tree (TreeElement player action))
+stepTree gt a = DL.find (\t -> (Just a == (fromAction $ DT.rootLabel t)) ) (DT.subForest gt)
+
+traverseTree :: (Eq action) => DT.Tree (TreeElement player action) -> [action] -> Maybe (DT.Tree (TreeElement player action))
+traverseTree gt [] = Just gt
+traverseTree gt (a:as) = (stepTree gt a) >>= (\t -> traverseTree t as)
