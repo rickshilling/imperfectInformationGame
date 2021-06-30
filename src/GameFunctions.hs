@@ -22,7 +22,8 @@ module GameFunctions
     stepTree,
     drawMaybeGameTree,
     traverseTree,
-    getNewActions
+    getNewActions,
+    buildInfoMap
     ) where
 
 import GameTypes
@@ -30,7 +31,7 @@ import qualified Data.Map as DM
 import qualified Data.Set as DS
 import qualified Data.List as DL
 import qualified Data.Tree as DT
-import qualified Control.Monad as CM
+import Control.Monad.State
 
 gameTraverse :: (Eq action) =>
   (GameTree player action) -> [action] -> Maybe (GameTree player action)
@@ -167,3 +168,16 @@ traverseTree gt (a:as) = (stepTree gt a) >>= (\t -> traverseTree t as)
 
 getNewActions :: (Show player, Show action, Ord action) => DT.Tree (TreeElement player action) -> DS.Set action
 getNewActions gt = Prelude.foldl (\set -> \element -> DS.union set (maybeToSet (fromAction $ DT.rootLabel element))) DS.empty (DT.subForest gt)
+
+buildInfoMap :: (Ord action) => DT.Tree (TreeElement player action) -> State ([Maybe action], DM.Map (DS.Set (Maybe action)) (DS.Set [Maybe action])) ()
+buildInfoMap (DT.Node element forest) = do
+  (value, infoMap) <- get
+  let value' = value ++ [fromAction element]
+  let key' = DS.fromList $ Prelude.map (fromAction . DT.rootLabel) forest
+  let infoMap' = DM.insertWith DS.union key' (DS.singleton value') infoMap
+  put (value', infoMap')
+  _ <- mapM buildInfoMap forest
+  (_,infoMap'') <- get
+  put (value, infoMap'')
+  return ()
+
