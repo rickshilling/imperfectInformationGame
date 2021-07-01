@@ -7,7 +7,9 @@ import GameFunctions
 import qualified Data.Map as DM
 import qualified Data.Set as DS
 import qualified Data.Tree as DT
-import qualified Control.Monad as CM
+--import qualified Control.Monad as CM
+import qualified Control.Monad.State as CMS
+import Data.Map.Internal.Debug
 
 data Player = P1 | P2 | Chance deriving (Eq,Show)
 data Action = Heads | Tails | ActionLeft | ActionRight | Forfeit deriving (Eq,Ord,Show)
@@ -31,6 +33,8 @@ gg =
                                                          ]
                                                    ]
                                               ]
+f = CMS.runState (buildInfoMap gg) ([],DM.empty)
+pf = putStrLn $ showTree $ snd $ snd f
 
 g = GameNode Chance
   [
