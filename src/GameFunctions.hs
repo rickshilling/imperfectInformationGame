@@ -4,25 +4,24 @@ module GameFunctions
     --drawGameTree,
     --putStrGameTree,
     --putStrMaybeGameTree,
-    getInformationMap,
-    insertInfoMap,
+    --getInformationMap,
+    --insertInfoMap,
     getActions,
-    sameInfoSet,
+    --sameInfoSet,
     _A,
-    _AofI,
+    --_AofI,
     _P,
     _H,
     _Z,
     getSetOfInfoSets,
     _I,
-    filterInfoSetByPlayer,
+    --filterInfoSetByPlayer,
     pureSet,
     drawGameTree,
     --compareAction,
     stepTree,
     drawMaybeGameTree,
     traverseTree,
-    getNewActions,
     buildInfoMap
     ) where
 
@@ -69,6 +68,7 @@ putStrMaybeGameTree Nothing = putStrLn "Nothing"
 putStrMaybeGameTree (Just gt) = putStrGameTree gt
 -}
 
+{-
 getInformationMap :: (Show player, Show action, Ord action) =>
   (GameTree player action) -> (InformationMap action)
 getInformationMap tree = traverseHelp DM.empty (GameTypes.subForest tree) []
@@ -100,9 +100,7 @@ _A g h = (gameTraverse g h) >>= (\tree -> return (getActions (subForest tree)))
 _AofI :: (Show player, Show action, Ord action) =>
   (GameTree player action) -> InformationSet action -> Maybe (DS.Set action)
 _AofI g infoSet = _A g (DS.elemAt 0 infoSet)
-
-_P :: (Show player, Show action, Ord action) => (GameTree player action) -> History action -> Maybe player
-_P g h = (gameTraverse g h) >>= (\tree -> return (rootLabel tree))
+-}
 
 
 _H :: (Show action, Ord action) => (InformationMap action) -> DS.Set (History action)
@@ -131,11 +129,11 @@ _II_i g inSets i = DS.foldl (\outSets -> \infoSet -> help g i outSets infoSet) D
   where
   help g i outSets infoSet = DS.foldl (\outInfoSet -> \h -> help2 g i h outSets) DS.empty infoSet
   help2 g i h infoSet = undefined --_P g
-
+{-
 filterInfoSetByPlayer :: (Show player, Show action, Ord action, Eq player) =>
   (GameTree player action) -> player -> InformationSet action -> InformationSet action
 filterInfoSetByPlayer g p infoSet = DS.filter (\h -> (_P g h) == (Just p)) infoSet
-
+-}
 pureSet :: Maybe (DS.Set a) -> DS.Set a
 pureSet Nothing = DS.empty
 pureSet (Just set) = set
@@ -168,8 +166,14 @@ traverseTree :: (Eq action) => DT.Tree (TreeElement player action) -> [action] -
 traverseTree gt [] = Just gt
 traverseTree gt (a:as) = (stepTree gt a) >>= (\t -> traverseTree t as)
 
-getNewActions :: (Show player, Show action, Ord action) => DT.Tree (TreeElement player action) -> DS.Set action
-getNewActions gt = Prelude.foldl (\set -> \element -> DS.union set (maybeToSet (fromAction $ DT.rootLabel element))) DS.empty (DT.subForest gt)
+_A :: (Ord action, Show player, Show action) => DT.Tree (TreeElement player action) -> History action -> Maybe (DS.Set action)
+_A g h = (traverseTree g h) >>= (\tree -> return (getActions tree))
+
+_P :: (Ord action, Show player, Show action) => DT.Tree (TreeElement player action) -> History action -> Maybe player
+_P g h = (traverseTree g h) >>= (\tree -> getPlayer $ DT.rootLabel tree)
+
+getActions :: (Show player, Show action, Ord action) => DT.Tree (TreeElement player action) -> DS.Set action
+getActions gt = Prelude.foldl (\set -> \element -> DS.union set (maybeToSet (fromAction $ DT.rootLabel element))) DS.empty (DT.subForest gt)
 
 buildInfoMap :: (Ord action) => DT.Tree (TreeElement player action) -> CMS.State ([Maybe action], DM.Map (DS.Set (Maybe action)) (DS.Set [Maybe action])) ()
 buildInfoMap (DT.Node element forest) = do
@@ -182,4 +186,3 @@ buildInfoMap (DT.Node element forest) = do
   (_,infoMap'') <- CMS.get
   CMS.put (value, infoMap'')
   return ()
-

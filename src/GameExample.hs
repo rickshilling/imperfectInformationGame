@@ -36,6 +36,15 @@ gg =
 f = CMS.runState (buildInfoMap gg) ([],DM.empty)
 pf = putStrLn $ showTree $ snd $ snd f
 
+actionsFromHeads = (_A gg [Heads])
+playerFromHeads = (_P gg [Heads])
+playerFromHeadsHeads = (_P gg [Heads,Heads])
+
+{-
+playerFromHeads = (_P gg [Heads])
+actionFromInfoSet = anInfoSetOfG >>= (_AofI g)
+-}
+{-
 g = GameNode Chance
   [
     (Heads, Just (GameNode P1
@@ -72,9 +81,6 @@ anInfoSetOfG = _I infoSetsOfG [Heads,ActionRight]
 aFilteredInfoSetOfP1 = filterInfoSetByPlayer g P1 (pureSet anInfoSetOfG)
 aFilteredInfoSetOfP2 = filterInfoSetByPlayer g P2 (pureSet anInfoSetOfG)
 
-actionsFromHeads = (_A g [Heads])
-playerFromHeads = (_P g [Heads])
-actionFromInfoSet = anInfoSetOfG >>= (_AofI g)
 
 sigma :: (Show player, Show action, Ord action, Eq action) =>
   (GameTree player action) -> Sigma action
@@ -88,3 +94,4 @@ n1 = DT.Node 5 []
 n2 = DT.Node 4 [n1]
 
 gameStateIntance = GameState [] g
+--}
