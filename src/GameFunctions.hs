@@ -12,7 +12,7 @@ module GameFunctions
     --_AofI,
     _P,
     _H,
-    _Z,
+    --_Z,
     getSetOfInfoSets,
     _I,
     --filterInfoSetByPlayer,
@@ -22,7 +22,8 @@ module GameFunctions
     stepTree,
     drawMaybeGameTree,
     traverseTree,
-    buildInfoMap
+    buildInfoMap,
+    getInfoMap
     ) where
 
 import GameTypes
@@ -94,9 +95,6 @@ sameInfoSet tree a1 a2 = helper (gameTraverse tree a1) (gameTraverse tree a2)
   helper _         Nothing   = False
   helper (Just t1) (Just t2) = (getActions (GameTypes.subForest t1)) == (getActions (GameTypes.subForest t2))
 
-_A :: (Show player, Show action, Ord action) => (GameTree player action) -> History action -> Maybe (DS.Set action)
-_A g h = (gameTraverse g h) >>= (\tree -> return (getActions (subForest tree)))
-
 _AofI :: (Show player, Show action, Ord action) =>
   (GameTree player action) -> InformationSet action -> Maybe (DS.Set action)
 _AofI g infoSet = _A g (DS.elemAt 0 infoSet)
@@ -105,14 +103,14 @@ _AofI g infoSet = _A g (DS.elemAt 0 infoSet)
 
 _H :: (Show action, Ord action) => (InformationMap action) -> DS.Set (History action)
 _H infoMap = Prelude.foldl DS.union DS.empty (DM.elems infoMap)
-
+{-
 _Z :: (Eq action, Ord action) => (GameTree player action) -> DS.Set (History action)
 _Z g = help DS.empty (subForest g) []
   where
   help set forest actions = foldl (moreHelp actions) set forest
   moreHelp actions set (action, Nothing) = DS.union set (DS.singleton (actions++[action]))
   moreHelp actions set (action, Just tree) = help set (subForest tree) (actions++[action])
-
+-}
 getSetOfInfoSets :: (Ord action) => InformationMap action -> DS.Set (InformationSet action)
 getSetOfInfoSets infoMap = DS.fromList $ DM.elems infoMap
 
@@ -142,6 +140,9 @@ maybeToSet :: Maybe a -> DS.Set a
 maybeToSet Nothing = DS.empty
 maybeToSet (Just e) = DS.singleton e
 
+maybeToList :: Maybe a -> [a]
+maybeToList Nothing = []
+maybeToList (Just e) = [e]
 --
 
 showTreeElement :: (Show player, Show action) => TreeElement player action -> String
@@ -186,3 +187,19 @@ buildInfoMap (DT.Node element forest) = do
   (_,infoMap'') <- CMS.get
   CMS.put (value, infoMap'')
   return ()
+
+getInfoMap :: (Ord action) => DT.Tree (TreeElement player action) -> CMS.State ([action], DM.Map (DS.Set (action)) (DS.Set [action])) ()
+getInfoMap (DT.Node element forest) = do
+  (value, infoMap) <- CMS.get
+  let value' = value ++ (maybeToList $ fromAction element)
+  let selectedForest = Prelude.filter (\te -> (fromAction . DT.rootLabel $ te) /=Nothing) forest
+  let selectedMaybeActions = Prelude.map (fromAction . DT.rootLabel) selectedForest
+  let selectedActions = DS.fromList $ Prelude.map (\(Just x) -> x) selectedMaybeActions
+  let key' = selectedActions
+  let infoMap' = DM.insertWith DS.union key' (DS.singleton value') infoMap
+  CMS.put (value', infoMap')
+  _ <- mapM getInfoMap forest
+  (_,infoMap'') <- CMS.get
+  CMS.put (value, infoMap'')
+  return ()
+
