@@ -6,13 +6,15 @@ module GameTypes
   InformationSet(..),
   InformationMap(..),
   GameState(..),
-  TreeElement(..)
+  TreeElement(..),
+  Game(..),
   ) where
 import Control.Monad
 import Data.Map
 import Data.Set
 import qualified Data.Set as DS
 import Control.Monad.State hiding (State)
+import Data.Tree
 
 data GameTree player action = GameNode {
   rootLabel :: player,
@@ -37,7 +39,7 @@ data GameState player action = GameState {
 data TreeElement player action = TreeElement {
   getPlayer  :: Maybe player,
   fromAction :: Maybe action
-}
+} 
 
 instance (Show player, Show action) => Show (TreeElement player action) where {
   show (TreeElement p a) = show p ++ ", " ++ show a
@@ -46,3 +48,7 @@ instance (Show player, Show action) => Show (TreeElement player action) where {
 instance (Eq player, Eq action) => Eq (TreeElement player action) where {
   TreeElement p1 a1 == TreeElement p2 a2 = (p1==p2) && (a1==a2)
   };
+
+data Game player action = Game {
+  getTree :: Tree (TreeElement player action)
+}

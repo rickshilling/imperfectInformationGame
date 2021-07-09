@@ -188,12 +188,17 @@ buildInfoMap (DT.Node element forest) = do
   CMS.put (value, infoMap'')
   return ()
 
-getInfoMap :: (Ord action) => DT.Tree (TreeElement player action) -> CMS.State ([action], DM.Map (DS.Set (action)) (DS.Set [action])) ()
+getTemp :: Ord action => Game player action -> Int
+getTemp game = 5
+  where
+    tt = fromAction . DT.rootLabel . getTree $ game
+
+getInfoMap :: (Ord action) => DT.Tree (TreeElement player action) -> CMS.State (History action, InformationMap action) ()
 getInfoMap (DT.Node element forest) = do
   (value, infoMap) <- CMS.get
-  let value' = value ++ (maybeToList $ fromAction element)
-  let selectedForest = Prelude.filter (\te -> (fromAction . DT.rootLabel $ te) /=Nothing) forest
-  let selectedMaybeActions = Prelude.map (fromAction . DT.rootLabel) selectedForest
+  let value' = value ++ (maybeToList . fromAction $ element)
+  let selectedForest = Prelude.filter (\te -> (fromAction. DT.rootLabel $ te) /= Nothing) forest
+  let selectedMaybeActions = Prelude.map (fromAction . DT.rootLabel ) selectedForest
   let selectedActions = DS.fromList $ Prelude.map (\(Just x) -> x) selectedMaybeActions
   let key' = selectedActions
   let infoMap' = DM.insertWith DS.union key' (DS.singleton value') infoMap
