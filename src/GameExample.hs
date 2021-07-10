@@ -14,7 +14,7 @@ import Data.Map.Internal.Debug
 data Player = P1 | P2 | Chance deriving (Eq,Show)
 data Action = Heads | Tails | ActionLeft | ActionRight | Forfeit deriving (Eq,Ord,Show)
 
-gg =
+gt =
   DT.Node (TreeElement (Just Chance) Nothing) [
   DT.Node (TreeElement (Just P1)     (Just Heads)) [
       DT.Node (TreeElement (Nothing) (Just ActionLeft)) [],
@@ -34,9 +34,14 @@ gg =
                                                    ]
                                               ]
 
-fn = CMS.runState (getInfoMap gg) ([],DM.empty)
-pfn = putStrLn $ showTree $ snd $ snd fn
+fn = CMS.runState (getInfoMap gt) ([],DM.empty)
+infoMap = snd $ snd fn
+pfn = putStrLn $ showTree $ infoMap
 
-actionsFromHeads = (_A gg [Heads])
-playerFromHeads = (_P gg [Heads])
-playerFromHeadsHeads = (_P gg [Heads,Heads])
+actionsFromHeads = (_A gt [Heads])
+playerFromHeads = (_P gt [Heads])
+playerFromHeadsHeads = (_P gt [Heads,Heads])
+
+_Z :: (Eq action, Ord action) => (InformationMap action) -> Maybe (DS.Set (History action))
+_Z = DM.lookup DS.empty 
+

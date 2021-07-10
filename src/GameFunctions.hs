@@ -21,7 +21,14 @@ import qualified Control.Monad.State as CMS
 
 _H :: (Show action, Ord action) => (InformationMap action) -> DS.Set (History action)
 _H infoMap = Prelude.foldl DS.union DS.empty (DM.elems infoMap)
-
+{-
+_Z :: (Eq action, Ord action) => (InformationMap action) -> DS.Set (History action)
+_Z infoMap = help DS.empty (subForest g) []
+  where
+  help set forest actions = foldl (moreHelp actions) set forest
+  moreHelp actions set (action, Nothing) = DS.union set (DS.singleton (actions++[action]))
+  moreHelp actions set (action, Just tree) = help set (subForest tree) (actions++[action])
+  -}
 maybeToSet :: Maybe a -> DS.Set a
 maybeToSet Nothing = DS.empty
 maybeToSet (Just e) = DS.singleton e
@@ -74,13 +81,6 @@ getInfoMap (DT.Node element forest) = do
 -----------------------------------
 
 {-
-_Z :: (Eq action, Ord action) => (GameTree player action) -> DS.Set (History action)
-_Z g = help DS.empty (subForest g) []
-  where
-  help set forest actions = foldl (moreHelp actions) set forest
-  moreHelp actions set (action, Nothing) = DS.union set (DS.singleton (actions++[action]))
-  moreHelp actions set (action, Just tree) = help set (subForest tree) (actions++[action])
-
 
 getSetOfInfoSets :: (Ord action) => InformationMap action -> DS.Set (InformationSet action)
 getSetOfInfoSets infoMap = DS.fromList $ DM.elems infoMap
