@@ -4,15 +4,13 @@ module GameFunctions
     _A,
     _P,
     _H,
-    getSetOfInfoSets,
-    _I,
     drawGameTree,
     stepTree,
     drawMaybeGameTree,
     traverseTree,
-    buildInfoMap,
     getInfoMap
-    ) where
+    )
+where
 
 import GameTypes
 import qualified Data.Map as DM
@@ -23,32 +21,7 @@ import qualified Control.Monad.State as CMS
 
 _H :: (Show action, Ord action) => (InformationMap action) -> DS.Set (History action)
 _H infoMap = Prelude.foldl DS.union DS.empty (DM.elems infoMap)
-{-
-_Z :: (Eq action, Ord action) => (GameTree player action) -> DS.Set (History action)
-_Z g = help DS.empty (subForest g) []
-  where
-  help set forest actions = foldl (moreHelp actions) set forest
-  moreHelp actions set (action, Nothing) = DS.union set (DS.singleton (actions++[action]))
-  moreHelp actions set (action, Just tree) = help set (subForest tree) (actions++[action])
--}
-getSetOfInfoSets :: (Ord action) => InformationMap action -> DS.Set (InformationSet action)
-getSetOfInfoSets infoMap = DS.fromList $ DM.elems infoMap
 
-_I :: (Ord action) => DS.Set (InformationSet action) -> History action -> Maybe (InformationSet action)
-_I infoSets history = helper (DS.toList infoSets) history
-  where
-  helper []       _  = Nothing
-  helper (is:iss) hs = if DS.member hs is then Just is else helper iss hs
-
--- Gets information sets of a given player
-{-
-_II_i :: (Show player, Show action, Ord action) =>
-  (GameTree player action) -> DS.Set (InformationSet action) -> player -> DS.Set (InformationSet action)
-_II_i g inSets i = DS.foldl (\outSets -> \infoSet -> help g i outSets infoSet) DS.empty inSets
-  where
-  help g i outSets infoSet = DS.foldl (\outInfoSet -> \h -> help2 g i h outSets) DS.empty infoSet
-  help2 g i h infoSet = undefined --_P g
--}
 maybeToSet :: Maybe a -> DS.Set a
 maybeToSet Nothing = DS.empty
 maybeToSet (Just e) = DS.singleton e
@@ -83,18 +56,6 @@ _P g h = (traverseTree g h) >>= (\tree -> getPlayer $ DT.rootLabel tree)
 getActions :: (Show player, Show action, Ord action) => DT.Tree (TreeElement player action) -> DS.Set action
 getActions gt = Prelude.foldl (\set -> \element -> DS.union set (maybeToSet (fromAction $ DT.rootLabel element))) DS.empty (DT.subForest gt)
 
-buildInfoMap :: (Ord action) => DT.Tree (TreeElement player action) -> CMS.State ([Maybe action], DM.Map (DS.Set (Maybe action)) (DS.Set [Maybe action])) ()
-buildInfoMap (DT.Node element forest) = do
-  (value, infoMap) <- CMS.get
-  let value' = value ++ [fromAction element]
-  let key' = DS.fromList $ Prelude.map (fromAction . DT.rootLabel) forest
-  let infoMap' = DM.insertWith DS.union key' (DS.singleton value') infoMap
-  CMS.put (value', infoMap')
-  _ <- mapM buildInfoMap forest
-  (_,infoMap'') <- CMS.get
-  CMS.put (value, infoMap'')
-  return ()
-
 getInfoMap :: (Ord action) => DT.Tree (TreeElement player action) -> CMS.State (History action, InformationMap action) ()
 getInfoMap (DT.Node element forest) = do
   (value, infoMap) <- CMS.get
@@ -110,3 +71,33 @@ getInfoMap (DT.Node element forest) = do
   CMS.put (value, infoMap'')
   return ()
 
+-----------------------------------
+
+{-
+_Z :: (Eq action, Ord action) => (GameTree player action) -> DS.Set (History action)
+_Z g = help DS.empty (subForest g) []
+  where
+  help set forest actions = foldl (moreHelp actions) set forest
+  moreHelp actions set (action, Nothing) = DS.union set (DS.singleton (actions++[action]))
+  moreHelp actions set (action, Just tree) = help set (subForest tree) (actions++[action])
+
+
+getSetOfInfoSets :: (Ord action) => InformationMap action -> DS.Set (InformationSet action)
+getSetOfInfoSets infoMap = DS.fromList $ DM.elems infoMap
+_I :: (Ord action) => DS.Set (InformationSet action) -> History action -> Maybe (InformationSet action)
+_I infoSets history = helper (DS.toList infoSets) history
+  where
+  helper []       _  = Nothing
+  helper (is:iss) hs = if DS.member hs is then Just is else helper iss hs
+
+-- Gets information sets of a given player
+{-
+_II_i :: (Show player, Show action, Ord action) =>
+  (GameTree player action) -> DS.Set (InformationSet action) -> player -> DS.Set (InformationSet action)
+_II_i g inSets i = DS.foldl (\outSets -> \infoSet -> help g i outSets infoSet) DS.empty inSets
+  where
+  help g i outSets infoSet = DS.foldl (\outInfoSet -> \h -> help2 g i h outSets) DS.empty infoSet
+  help2 g i h infoSet = undefined --_P g
+-}
+
+-}

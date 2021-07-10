@@ -33,8 +33,6 @@ gg =
                                                          ]
                                                    ]
                                               ]
-f = CMS.runState (buildInfoMap gg) ([],DM.empty)
-pf = putStrLn $ showTree $ snd $ snd f
 
 fn = CMS.runState (getInfoMap gg) ([],DM.empty)
 pfn = putStrLn $ showTree $ snd $ snd fn
