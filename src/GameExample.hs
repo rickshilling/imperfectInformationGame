@@ -45,3 +45,6 @@ playerFromHeadsHeads = (_P gt [Heads,Heads])
 _Z :: (Eq action, Ord action) => (InformationMap action) -> Maybe (DS.Set (History action))
 _Z = DM.lookup DS.empty 
 
+h = [Tails,ActionRight] :: (History Action)
+
+maybeInfoSet = _I gt infoMap h
