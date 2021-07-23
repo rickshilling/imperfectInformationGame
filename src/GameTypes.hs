@@ -3,6 +3,7 @@ module GameTypes
   History(..),
   InformationSet(..),
   InformationMap(..),
+  InformationMaps(..),
   Sigma(..),
   TreeElement(..)
   ) where
@@ -12,6 +13,9 @@ import Data.Set
 type History action = [action]
 type InformationSet action = Set (History action)
 type InformationMap action = Map (Set action) (InformationSet action)
+
+type InformationMaps player action = Map player (InformationMap action)
+
 type Sigma action = History action -> action -> Float
 
 data TreeElement player action = TreeElement {

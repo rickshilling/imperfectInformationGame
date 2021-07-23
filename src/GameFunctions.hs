@@ -54,9 +54,6 @@ getActions gt = Prelude.foldl (\set -> \element -> DS.union set (maybeToSet (fro
 _A :: (Ord action, Show player, Show action) => DT.Tree (TreeElement player action) -> History action -> Maybe (DS.Set action)
 _A g h = (traverseTree g h) >>= (\tree -> return (getActions tree))
 
-_P :: (Ord action, Show player, Show action) => DT.Tree (TreeElement player action) -> History action -> Maybe player
-_P g h = (traverseTree g h) >>= (\tree -> getPlayer $ DT.rootLabel tree)
-
 getInfoMap :: (Ord action) => DT.Tree (TreeElement player action) -> CMS.State (History action, InformationMap action) ()
 getInfoMap (DT.Node element forest) = do
   (value, infoMap) <- CMS.get
@@ -72,21 +69,35 @@ getInfoMap (DT.Node element forest) = do
   CMS.put (value, infoMap'')
   return ()
 
+--type InformationMaps player action = Map player (InformationMap action)
+getInfoMaps :: (Ord action, Ord player) => DT.Tree (TreeElement player action) -> CMS.State (History action, InformationMaps player action) ()
+getInfoMaps (DT.Node element forest) = do
+  (value, infoMaps) <- CMS.get
+  let maybePlayer = getPlayer element
+  let maybeInfoMap = maybePlayer >>= (\p -> DM.lookup p infoMaps)
+
+  let value' = value ++ (maybeToList . fromAction $ element)
+  let selectedForest = Prelude.filter (\te -> (fromAction. DT.rootLabel $ te) /= Nothing) forest
+  let selectedMaybeActions = Prelude.map (fromAction . DT.rootLabel ) selectedForest
+  let selectedActions = DS.fromList $ Prelude.map (\(Just x) -> x) selectedMaybeActions
+  let key' = selectedActions
+  let maybeInfoMap' = maybeInfoMap >>= (\infoMap -> Just (DM.insertWith DS.union key' (DS.singleton value') infoMap))
+  let maybeInfoMaps' = DM.insert DS.union key' (DS.singleton value') infoMap
+  
+  
+  --CMS.put (value', infoMap')
+  --_ <- mapM getInfoMap forest
+  --(_,infoMap'') <- CMS.get
+  --CMS.put (value, infoMap'')
+  return ()
+  
+  
+
 _I :: (Ord action, Show player, Show action) => DT.Tree (TreeElement player action) -> InformationMap action -> History action ->Maybe (InformationSet action)
 _I gt infoMap h = (traverseTree gt h) >>= (\t -> (DM.lookup (getActions t) infoMap))
 
-{-
+_P :: (Ord action, Show player, Show action) => DT.Tree (TreeElement player action) -> History action -> Maybe player
+_P g h = (traverseTree g h) >>= (\tree -> getPlayer $ DT.rootLabel tree)
 
-getSetOfInfoSets :: (Ord action) => InformationMap action -> DS.Set (InformationSet action)
-getSetOfInfoSets infoMap = DS.fromList $ DM.elems infoMap
-
--- Gets information sets of a given player
-
-_II_i :: (Show player, Show action, Ord action) =>
-  (GameTree player action) -> DS.Set (InformationSet action) -> player -> DS.Set (InformationSet action)
-_II_i g inSets i = DS.foldl (\outSets -> \infoSet -> help g i outSets infoSet) DS.empty inSets
-  where
-  help g i outSets infoSet = DS.foldl (\outInfoSet -> \h -> help2 g i h outSets) DS.empty infoSet
-  help2 g i h infoSet = undefined --_P g
-
--}
+_PP :: (Ord action, Show player, Show action) => DT.Tree (TreeElement player action) -> (InformationSet action) -> Maybe player
+_PP gt infoSet = undefined
