@@ -69,29 +69,6 @@ getInfoMap (DT.Node element forest) = do
   CMS.put (value, infoMap'')
   return ()
 
---type InformationMaps player action = Map player (InformationMap action)
-getInfoMaps :: (Ord action, Ord player) => DT.Tree (TreeElement player action) -> CMS.State (History action, InformationMaps player action) ()
-getInfoMaps (DT.Node element forest) = do
-  (value, infoMaps) <- CMS.get
-  let maybePlayer = getPlayer element
-  let maybeInfoMap = maybePlayer >>= (\p -> DM.lookup p infoMaps)
-
-  let value' = value ++ (maybeToList . fromAction $ element)
-  let selectedForest = Prelude.filter (\te -> (fromAction. DT.rootLabel $ te) /= Nothing) forest
-  let selectedMaybeActions = Prelude.map (fromAction . DT.rootLabel ) selectedForest
-  let selectedActions = DS.fromList $ Prelude.map (\(Just x) -> x) selectedMaybeActions
-  let key' = selectedActions
-  let maybeInfoMap' = maybeInfoMap >>= (\infoMap -> Just (DM.insertWith DS.union key' (DS.singleton value') infoMap))
-  let maybeInfoMaps' = DM.insert DS.union key' (DS.singleton value') infoMap
-  
-  
-  --CMS.put (value', infoMap')
-  --_ <- mapM getInfoMap forest
-  --(_,infoMap'') <- CMS.get
-  --CMS.put (value, infoMap'')
-  return ()
-  
-  
 
 _I :: (Ord action, Show player, Show action) => DT.Tree (TreeElement player action) -> InformationMap action -> History action ->Maybe (InformationSet action)
 _I gt infoMap h = (traverseTree gt h) >>= (\t -> (DM.lookup (getActions t) infoMap))
@@ -101,3 +78,33 @@ _P g h = (traverseTree g h) >>= (\tree -> getPlayer $ DT.rootLabel tree)
 
 _PP :: (Ord action, Show player, Show action) => DT.Tree (TreeElement player action) -> (InformationSet action) -> Maybe player
 _PP gt infoSet = undefined
+
+--type History' action = [Maybe action]
+--type InformationSet' action = Set (History' action)
+--type InformationMap' action = Map (Set (Maybe action)) (InformationSet' action)
+--type InformationMaps' player action = Map (Maybe player) (InformationMap' action)
+getInfoMaps' :: (Ord action, Ord player) => DT.Tree (TreeElement player action) -> CMS.State (History' action, InformationMaps' player action) ()
+getInfoMaps' (DT.Node element forest) = do
+  (history', infoMaps') <- CMS.get
+  let player' = getPlayer element
+  let action' = fromAction element
+  let maybeInfoMap' = DM.lookup player' infoMaps'
+
+  let actionSet' = DS.fromList $ Prelude.map (fromAction . DT.rootLabel) forest
+  let history'' = history' ++ [action']
+
+  let maybeInfoMap'' = maybeInfoMap' >>= (\infoMap -> DM.insertWith DS.union actionSet' infoMap)
+{-
+  let value' = value ++ (maybeToList . fromAction $ element)
+  let selectedForest = Prelude.filter (\te -> (fromAction. DT.rootLabel $ te) /= Nothing) forest
+  let selectedMaybeActions = Prelude.map (fromAction . DT.rootLabel ) selectedForest
+  let selectedActions = DS.fromList $ Prelude.map (\(Just x) -> x) selectedMaybeActions
+  let key' = selectedActions
+  let maybeInfoMap' = maybeInfoMap >>= (\infoMap -> Just (DM.insertWith DS.union key' (DS.singleton value') infoMap))-}
+  --let maybeInfoMaps' = maybePlayer >>= (\p -> DM.insert p key' (DS.singleton value') maybeInfoMap')
+
+  --CMS.put (value', infoMap')
+  --_ <- mapM getInfoMap forest
+  --(_,infoMap'') <- CMS.get
+  --CMS.put (value, infoMap'')
+  return ()
