@@ -85,26 +85,12 @@ _PP gt infoSet = undefined
 --type InformationMaps' player action = Map (Maybe player) (InformationMap' action)
 getInfoMaps' :: (Ord action, Ord player) => DT.Tree (TreeElement player action) -> CMS.State (History' action, InformationMaps' player action) ()
 getInfoMaps' (DT.Node element forest) = do
-  (history', infoMaps') <- CMS.get
-  let player' = getPlayer element
-  let action' = fromAction element
-  let maybeInfoMap' = DM.lookup player' infoMaps'
-
-  let actionSet' = DS.fromList $ Prelude.map (fromAction . DT.rootLabel) forest
-  let history'' = history' ++ [action']
-
-  let maybeInfoMap'' = maybeInfoMap' >>= (\infoMap -> DM.insertWith DS.union actionSet' infoMap)
-{-
-  let value' = value ++ (maybeToList . fromAction $ element)
-  let selectedForest = Prelude.filter (\te -> (fromAction. DT.rootLabel $ te) /= Nothing) forest
-  let selectedMaybeActions = Prelude.map (fromAction . DT.rootLabel ) selectedForest
-  let selectedActions = DS.fromList $ Prelude.map (\(Just x) -> x) selectedMaybeActions
-  let key' = selectedActions
-  let maybeInfoMap' = maybeInfoMap >>= (\infoMap -> Just (DM.insertWith DS.union key' (DS.singleton value') infoMap))-}
-  --let maybeInfoMaps' = maybePlayer >>= (\p -> DM.insert p key' (DS.singleton value') maybeInfoMap')
-
-  --CMS.put (value', infoMap')
-  --_ <- mapM getInfoMap forest
-  --(_,infoMap'') <- CMS.get
-  --CMS.put (value, infoMap'')
+  (history', infoMaps') <- CMS.get                             -- (History' action, InformationMaps' player action)
+  let player' = getPlayer element                                                -- Maybe player
+  let action' = fromAction element                                               -- Maybe action
+  let maybeInfoMap' = DM.lookup player' infoMaps'                                -- Maybe (InformationMap' action)
+  let actionSet'' = DS.fromList $ Prelude.map (fromAction . DT.rootLabel) forest -- Set (Maybe action)
+  let historySet'' = DS.fromList $ history' ++ [action']                         -- Set (History' action)
+  let temp = \infoMap -> Just (DM.insertWith DS.union actionSet'' historySet'' infoMap)
+  let maybeInfoMap2 = maybeInfoMap' >>= temp
   return ()
