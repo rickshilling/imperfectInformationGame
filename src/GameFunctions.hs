@@ -48,6 +48,10 @@ maybeToList :: Maybe a -> [a]
 maybeToList Nothing = []
 maybeToList (Just e) = [e]
 
+maybeMapToMap :: Maybe (DM.Map k a) -> DM.Map k a
+maybeMapToMap Nothing = DM.empty
+maybeMapToMap (Just map') = map'
+
 getActions :: (Show player, Show action, Ord action) => DT.Tree (TreeElement player action) -> DS.Set action
 getActions gt = Prelude.foldl (\set -> \element -> DS.union set (maybeToSet (fromAction $ DT.rootLabel element))) DS.empty (DT.subForest gt)
 
@@ -90,16 +94,18 @@ getInfoMaps' (DT.Node element forest) = do
   let action' = fromAction element                                               -- Maybe action
   let maybeInfoMap' = DM.lookup player' infoMaps'                                -- Maybe (InformationMap' action)
   let actionSet'' = DS.fromList $ Prelude.map (fromAction . DT.rootLabel) forest -- Set (Maybe action)
-  let historySet'' = DS.singleton $ history' ++ [action']                        -- Set (History' action)
-  let maybeInfoMap'' = maybeInfoMap' >>= \infoMap -> Just (DM.insertWith DS.union actionSet'' historySet'' infoMap)
+  let history'' = history' ++ [action']                                          -- History' action
+  let historySet'' = DS.singleton $ history''                                    -- Set (History' action)
+  --let maybeInfoMap'' = maybeInfoMap' >>= \infoMap -> Just (DM.insertWith DS.union actionSet'' historySet'' infoMap)
                                                                                  -- Maybe (InformationMap' action)
-  let maybeInfoMaps'' =  maybeInfoMap'' >>= \infoMap -> Just (DM.insert player' infoMap infoMaps')
-  -- I want:  m a -> (a -> b) -> b
+  --let maybeInfoMaps'' =  maybeInfoMap'' >>= \infoMap -> Just (DM.insert player' infoMap infoMaps')
+                                                               -- Maybe (Map (Maybe player) (InformationMap' action))
 
-{-
-  CMS.put (value', infoMap')
-  _ <- mapM getInfoMap forest
-  (_,infoMap'') <- CMS.get
-  CMS.put (value, infoMap'')
--}
+  let infoMap' = maybeMapToMap $ DM.lookup player' infoMaps'
+  let infoMap'' = DM.insertWith DS.union actionSet'' historySet'' infoMap''
+  let infoMaps'' = DM.insert player' infoMap'' infoMaps'
+  CMS.put (history'', infoMaps'')
+  _ <- mapM getInfoMaps' forest
+  (_,infoMaps''') <- CMS.get
+  CMS.put (history', infoMaps''')
   return ()
