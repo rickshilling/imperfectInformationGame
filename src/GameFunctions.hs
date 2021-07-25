@@ -90,7 +90,16 @@ getInfoMaps' (DT.Node element forest) = do
   let action' = fromAction element                                               -- Maybe action
   let maybeInfoMap' = DM.lookup player' infoMaps'                                -- Maybe (InformationMap' action)
   let actionSet'' = DS.fromList $ Prelude.map (fromAction . DT.rootLabel) forest -- Set (Maybe action)
-  let historySet'' = DS.fromList $ history' ++ [action']                         -- Set (History' action)
-  let temp = \infoMap -> Just (DM.insertWith DS.union actionSet'' historySet'' infoMap)
-  let maybeInfoMap2 = maybeInfoMap' >>= temp
+  let historySet'' = DS.singleton $ history' ++ [action']                        -- Set (History' action)
+  let maybeInfoMap'' = maybeInfoMap' >>= \infoMap -> Just (DM.insertWith DS.union actionSet'' historySet'' infoMap)
+                                                                                 -- Maybe (InformationMap' action)
+  let maybeInfoMaps'' =  maybeInfoMap'' >>= \infoMap -> Just (DM.insert player' infoMap infoMaps')
+  -- I want:  m a -> (a -> b) -> b
+
+{-
+  CMS.put (value', infoMap')
+  _ <- mapM getInfoMap forest
+  (_,infoMap'') <- CMS.get
+  CMS.put (value, infoMap'')
+-}
   return ()
