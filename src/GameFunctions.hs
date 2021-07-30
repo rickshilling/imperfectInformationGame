@@ -10,6 +10,7 @@ module GameFunctions
     traverseTree,
     getInfoMap,
     getInfoMaps',
+    getInfoMaps'',
     _I
     )
 where
@@ -104,6 +105,9 @@ getInfoMaps' (DT.Node element forest) = do
   (_,infoMaps''') <- CMS.get
   CMS.put (history', infoMaps''')
   return ()
+
+getInfoMaps'' :: (Ord action, Ord player) => DT.Tree (TreeElement player action) -> InformationMaps' player action
+getInfoMaps'' gt = snd $ snd $ CMS.runState (getInfoMaps' gt) ([],DM.empty)
 
 --ff :: Int -> Int
 ff x | trace ("ff " ++ show x ) False = undefined

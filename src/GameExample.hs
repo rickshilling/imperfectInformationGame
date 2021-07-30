@@ -57,3 +57,10 @@ p1InfoMap = DM.lookup (Just P1) infoMaps'
 p2InfoMap = DM.lookup (Just P2) infoMaps'
 chanceInfoMap = DM.lookup (Just Chance) infoMaps'
 nothingInfoMap = DM.lookup Nothing infoMaps'
+
+infoMaps'' = getInfoMaps'' gt
+
+p1InfoMap' = DM.lookup (Just P1) infoMaps''
+p2InfoMap' = DM.lookup (Just P2) infoMaps''
+chanceInfoMap' = DM.lookup (Just Chance) infoMaps''
+nothingInfoMap' = DM.lookup Nothing infoMaps''
