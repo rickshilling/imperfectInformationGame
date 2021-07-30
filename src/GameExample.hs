@@ -11,7 +11,7 @@ import qualified Data.Tree as DT
 import qualified Control.Monad.State as CMS
 import Data.Map.Internal.Debug
 
-data Player = P1 | P2 | Chance deriving (Eq,Show)
+data Player = P1 | P2 | Chance deriving (Eq,Ord,Show)
 data Action = Heads | Tails | ActionLeft | ActionRight | Forfeit deriving (Eq,Ord,Show)
 
 gt =
@@ -48,3 +48,9 @@ _Z = DM.lookup DS.empty
 h = [Tails,ActionRight] :: (History Action)
 
 maybeInfoSet = _I gt infoMap h
+
+fn' = CMS.runState (getInfoMaps' gt) ([],DM.empty)
+infoMap' = snd $ snd fn'
+pfn' = putStrLn $ showTree $ infoMap'
+
+--tm = tempMap gt DM.empty
