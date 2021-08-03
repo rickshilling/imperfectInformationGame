@@ -9,8 +9,8 @@ module GameFunctions
     drawMaybeGameTree,
     traverseTree,
     getInfoMap,
-    getInfoMaps',
-    getInfoMaps'',
+    getInfoMaps,
+    getInfoMapsState,
     _I
     )
 where
@@ -88,8 +88,8 @@ _P g h = (traverseTree g h) >>= (\tree -> getPlayer $ DT.rootLabel tree)
 _PP :: (Ord action, Show player, Show action) => DT.Tree (TreeElement player action) -> (InformationSet action) -> Maybe player
 _PP gt infoSet = undefined
 
-getInfoMaps' :: (Ord action, Ord player) => DT.Tree (TreeElement player action) -> CMS.State (History' action, InformationMaps' player action) ()
-getInfoMaps' (DT.Node element forest) = do
+getInfoMapsState :: (Ord action, Ord player) => DT.Tree (TreeElement player action) -> CMS.State (History' action, InformationMaps' player action) ()
+getInfoMapsState (DT.Node element forest) = do
   (history', infoMaps') <- CMS.get
   let player' = getPlayer element
   let action' = fromAction element
@@ -101,13 +101,13 @@ getInfoMaps' (DT.Node element forest) = do
   let infoMap'' = DM.insertWith DS.union actionSet'' historySet'' infoMap'
   let infoMaps'' = DM.insert player' infoMap'' infoMaps'
   CMS.put (history'', infoMaps'')
-  _ <- mapM getInfoMaps' forest
+  _ <- mapM getInfoMapsState forest
   (_,infoMaps''') <- CMS.get
   CMS.put (history', infoMaps''')
   return ()
 
-getInfoMaps'' :: (Ord action, Ord player) => DT.Tree (TreeElement player action) -> InformationMaps' player action
-getInfoMaps'' gt = snd $ snd $ CMS.runState (getInfoMaps' gt) ([],DM.empty)
+getInfoMaps :: (Ord action, Ord player) => DT.Tree (TreeElement player action) -> InformationMaps' player action
+getInfoMaps gt = snd $ snd $ CMS.runState (getInfoMapsState gt) ([],DM.empty)
 
 --ff :: Int -> Int
 ff x | trace ("ff " ++ show x ) False = undefined
