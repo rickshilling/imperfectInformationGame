@@ -49,7 +49,7 @@ h = [Tails,ActionRight] :: (History Action)
 
 maybeInfoSet = _I gt infoMap h
 
-fn' = CMS.runState (getInfoMaps' gt) ([],DM.empty)
+fn' = CMS.runState (getInfoMapsState gt) ([],DM.empty)
 infoMaps' = snd $ snd fn'
 pfn' = putStrLn $ showTree $ infoMaps'
 
@@ -58,7 +58,8 @@ p2InfoMap = DM.lookup (Just P2) infoMaps'
 chanceInfoMap = DM.lookup (Just Chance) infoMaps'
 nothingInfoMap = DM.lookup Nothing infoMaps'
 
-infoMaps'' = getInfoMaps'' gt
+--infoMaps'' = getInfoMapsState gt
+infoMaps'' = getInfoMaps gt
 
 p1InfoMap' = DM.lookup (Just P1) infoMaps''
 p2InfoMap' = DM.lookup (Just P2) infoMaps''
