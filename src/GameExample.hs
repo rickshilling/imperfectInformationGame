@@ -7,7 +7,6 @@ import GameFunctions
 import qualified Data.Map as DM
 import qualified Data.Set as DS
 import qualified Data.Tree as DT
---import qualified Control.Monad as CM
 import qualified Control.Monad.State as CMS
 import Data.Map.Internal.Debug
 
@@ -34,35 +33,12 @@ gt =
                                                    ]
                                               ]
 
---fn = CMS.runState (getInfoMap gt) ([],DM.empty)
---infoMap = snd $ snd fn
---pfn = putStrLn $ showTree $ infoMap
-
-actionsFromHeads = (_A gt [Heads])
-playerFromHeads = (_P gt [Heads])
-playerFromHeadsHeads = (_P gt [Heads,Heads])
-
 actionsFromHeads' = (_A' gt [Just Heads])
 playerFromHeads' = (_P' gt [Just Heads])
 playerFromHeadsHeads' = (_P' gt [Just Heads,Just Heads])
 
-_Z :: (Eq action, Ord action) => (InformationMap action) -> Maybe (DS.Set (History action))
-_Z = DM.lookup DS.empty 
-
---h = [Tails,ActionRight] :: (History Action)
-
---maybeInfoSet = _I gt infoMap h
-
---fn' = CMS.runState (getInfoMapsState gt) ([],DM.empty)
---infoMaps' = snd $ snd fn'
---pfn' = putStrLn $ showTree $ infoMaps'
-
---p1InfoMap = DM.lookup (Just P1) infoMaps'
---p2InfoMap = DM.lookup (Just P2) infoMaps'
---chanceInfoMap = DM.lookup (Just Chance) infoMaps'
---nothingInfoMap = DM.lookup Nothing infoMaps'
-
---infoMaps'' = getInfoMapsState gt
+_Z :: (Eq action, Ord action) => (InformationMap' action) -> Maybe (DS.Set (History' action))
+_Z = DM.lookup DS.empty
 
 infoMaps' = getInfoMaps gt
 

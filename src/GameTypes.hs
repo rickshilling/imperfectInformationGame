@@ -1,9 +1,5 @@
 module GameTypes
   (
-  History(..),
-  InformationSet(..),
-  InformationMap(..),
-  InformationMaps(..),
   History'(..),
   InformationSet'(..),
   InformationMap'(..),
@@ -19,17 +15,12 @@ data TreeElement player action = TreeElement {
   fromAction :: Maybe action
 }
 
-type History action = [action]
-type InformationSet action = Set (History action)
-type InformationMap action = Map (Set action) (InformationSet action)
-type InformationMaps player action = Map player (InformationMap action)
-
 type History' action = [Maybe action]
 type InformationSet' action = Set (History' action)
 type InformationMap' action = Map (Set (Maybe action)) (InformationSet' action)
 type InformationMaps' player action = Map (Maybe player) (InformationMap' action)
 
-type Sigma action = History action -> action -> Float
+type Sigma action = History' action -> action -> Float
 
 instance (Show player, Show action) => Show (TreeElement player action) where {
   show (TreeElement p a) = show p ++ ", " ++ show a
