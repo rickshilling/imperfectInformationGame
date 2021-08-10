@@ -34,34 +34,39 @@ gt =
                                                    ]
                                               ]
 
-fn = CMS.runState (getInfoMap gt) ([],DM.empty)
-infoMap = snd $ snd fn
-pfn = putStrLn $ showTree $ infoMap
+--fn = CMS.runState (getInfoMap gt) ([],DM.empty)
+--infoMap = snd $ snd fn
+--pfn = putStrLn $ showTree $ infoMap
 
 actionsFromHeads = (_A gt [Heads])
 playerFromHeads = (_P gt [Heads])
 playerFromHeadsHeads = (_P gt [Heads,Heads])
 
+actionsFromHeads' = (_A' gt [Just Heads])
+playerFromHeads' = (_P' gt [Just Heads])
+playerFromHeadsHeads' = (_P' gt [Just Heads,Just Heads])
+
 _Z :: (Eq action, Ord action) => (InformationMap action) -> Maybe (DS.Set (History action))
 _Z = DM.lookup DS.empty 
 
-h = [Tails,ActionRight] :: (History Action)
+--h = [Tails,ActionRight] :: (History Action)
 
-maybeInfoSet = _I gt infoMap h
+--maybeInfoSet = _I gt infoMap h
 
-fn' = CMS.runState (getInfoMapsState gt) ([],DM.empty)
-infoMaps' = snd $ snd fn'
-pfn' = putStrLn $ showTree $ infoMaps'
+--fn' = CMS.runState (getInfoMapsState gt) ([],DM.empty)
+--infoMaps' = snd $ snd fn'
+--pfn' = putStrLn $ showTree $ infoMaps'
+
+--p1InfoMap = DM.lookup (Just P1) infoMaps'
+--p2InfoMap = DM.lookup (Just P2) infoMaps'
+--chanceInfoMap = DM.lookup (Just Chance) infoMaps'
+--nothingInfoMap = DM.lookup Nothing infoMaps'
+
+--infoMaps'' = getInfoMapsState gt
+
+infoMaps' = getInfoMaps gt
 
 p1InfoMap = DM.lookup (Just P1) infoMaps'
 p2InfoMap = DM.lookup (Just P2) infoMaps'
 chanceInfoMap = DM.lookup (Just Chance) infoMaps'
 nothingInfoMap = DM.lookup Nothing infoMaps'
-
---infoMaps'' = getInfoMapsState gt
-infoMaps'' = getInfoMaps gt
-
-p1InfoMap' = DM.lookup (Just P1) infoMaps''
-p2InfoMap' = DM.lookup (Just P2) infoMaps''
-chanceInfoMap' = DM.lookup (Just Chance) infoMaps''
-nothingInfoMap' = DM.lookup Nothing infoMaps''
