@@ -38,7 +38,7 @@ traverseTree :: (Eq action) => DT.Tree (TreeElement player action) -> [Maybe act
 traverseTree gt [] = Just gt
 traverseTree gt (a:as) = (stepTree gt a) >>= (\t -> traverseTree t as)
 
-_H :: (Show action, Ord action) => (InformationMap' action) -> DS.Set (History' action)
+_H :: (Show action, Ord action) => (InformationMap action) -> DS.Set (History action)
 _H infoMap = Prelude.foldl DS.union DS.empty (DM.elems infoMap)
 
 maybeToSet :: Maybe a -> DS.Set a
@@ -56,13 +56,13 @@ maybeMapToMap (Just map') = map'
 getActions :: (Show player, Show action, Ord action) => DT.Tree (TreeElement player action) -> DS.Set (Maybe action)
 getActions gt = Prelude.foldl (\set -> \element -> DS.union set (DS.singleton $ fromAction $ DT.rootLabel element)) DS.empty (DT.subForest gt)
 
-_A :: (Ord action, Show player, Show action) => DT.Tree (TreeElement player action) -> History' action -> Maybe (DS.Set (Maybe action))
+_A :: (Ord action, Show player, Show action) => DT.Tree (TreeElement player action) -> History action -> Maybe (DS.Set (Maybe action))
 _A g h = (traverseTree g h) >>= (\tree -> return (getActions tree))
 
-_I :: (Ord action, Show player, Show action) => DT.Tree (TreeElement player action) -> InformationMap' action -> History' action ->Maybe (InformationSet' action)
+_I :: (Ord action, Show player, Show action) => DT.Tree (TreeElement player action) -> InformationMap action -> History action -> Maybe (InformationSet action)
 _I gt infoMap h = (traverseTree gt h) >>= (\t -> (DM.lookup (getActions t) infoMap))
 
-_P :: (Ord action, Show player, Show action) => DT.Tree (TreeElement player action) -> History' action -> Maybe player
+_P :: (Ord action, Show player, Show action) => DT.Tree (TreeElement player action) -> History action -> Maybe player
 _P g h = (traverseTree g h) >>= (\tree -> getPlayer $ DT.rootLabel tree)
 
 {-
@@ -70,7 +70,7 @@ _PP :: (Ord action, Show player, Show action) => DT.Tree (TreeElement player act
 _PP gt infoSet = undefined
 -}
 
-getInfoMapsState :: (Ord action, Ord player) => DT.Tree (TreeElement player action) -> CMS.State (History' action, InformationMaps' player action) ()
+getInfoMapsState :: (Ord action, Ord player) => DT.Tree (TreeElement player action) -> CMS.State (History action, InformationMaps player action) ()
 getInfoMapsState (DT.Node element forest) = do
   (history', infoMaps') <- CMS.get
   let player' = getPlayer element
@@ -88,6 +88,6 @@ getInfoMapsState (DT.Node element forest) = do
   CMS.put (history', infoMaps''')
   return ()
 
-getInfoMaps :: (Ord action, Ord player) => DT.Tree (TreeElement player action) -> InformationMaps' player action
+getInfoMaps :: (Ord action, Ord player) => DT.Tree (TreeElement player action) -> InformationMaps player action
 getInfoMaps gt = snd $ snd $ CMS.runState (getInfoMapsState gt) ([],DM.empty)
 

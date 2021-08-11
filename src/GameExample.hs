@@ -33,16 +33,16 @@ gt =
                                                    ]
                                               ]
 
-actionsFromHeads' = (_A' gt [Just Heads])
-playerFromHeads' = (_P' gt [Just Heads])
-playerFromHeadsHeads' = (_P' gt [Just Heads,Just Heads])
+actionsFromHeads = (_A gt [Just Heads])
+playerFromHeads = (_P gt [Just Heads])
+playerFromHeadsHeads = (_P gt [Just Heads,Just Heads])
 
-_Z :: (Eq action, Ord action) => (InformationMap' action) -> Maybe (DS.Set (History' action))
+_Z :: (Eq action, Ord action) => (InformationMap action) -> Maybe (DS.Set (History action))
 _Z = DM.lookup DS.empty
 
-infoMaps' = getInfoMaps gt
+infoMaps = getInfoMaps gt
 
-p1InfoMap = DM.lookup (Just P1) infoMaps'
-p2InfoMap = DM.lookup (Just P2) infoMaps'
-chanceInfoMap = DM.lookup (Just Chance) infoMaps'
-nothingInfoMap = DM.lookup Nothing infoMaps'
+p1InfoMap = DM.lookup (Just P1) infoMaps
+p2InfoMap = DM.lookup (Just P2) infoMaps
+chanceInfoMap = DM.lookup (Just Chance) infoMaps
+nothingInfoMap = DM.lookup Nothing infoMaps
