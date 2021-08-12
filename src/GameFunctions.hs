@@ -3,13 +3,13 @@ module GameFunctions
     _A,
     _P,
     _H,
+    _I,
+    _Z,
     drawGameTree,
     stepTree,
     drawMaybeGameTree,
     traverseTree,
-    getInfoMaps,
-    getInfoMapsState,
-    _I
+    getInfoMaps
     )
 where
 
@@ -41,14 +41,6 @@ traverseTree gt (a:as) = (stepTree gt a) >>= (\t -> traverseTree t as)
 _H :: (Show action, Ord action) => (InformationMap action) -> DS.Set (History action)
 _H infoMap = Prelude.foldl DS.union DS.empty (DM.elems infoMap)
 
-maybeToSet :: Maybe a -> DS.Set a
-maybeToSet Nothing = DS.empty
-maybeToSet (Just e) = DS.singleton e
-
-maybeToList :: Maybe a -> [a]
-maybeToList Nothing = []
-maybeToList (Just e) = [e]
-
 maybeMapToMap :: Maybe (DM.Map k a) -> DM.Map k a
 maybeMapToMap Nothing = DM.empty
 maybeMapToMap (Just map') = map'
@@ -59,11 +51,11 @@ getActions gt = Prelude.foldl (\set -> \element -> DS.union set (DS.singleton $ 
 _A :: (Ord action, Show player, Show action) => DT.Tree (TreeElement player action) -> History action -> Maybe (DS.Set (Maybe action))
 _A g h = (traverseTree g h) >>= (\tree -> return (getActions tree))
 
-_I :: (Ord action, Show player, Show action) => DT.Tree (TreeElement player action) -> InformationMap action -> History action -> Maybe (InformationSet action)
-_I gt infoMap h = (traverseTree gt h) >>= (\t -> (DM.lookup (getActions t) infoMap))
-
 _P :: (Ord action, Show player, Show action) => DT.Tree (TreeElement player action) -> History action -> Maybe player
 _P g h = (traverseTree g h) >>= (\tree -> getPlayer $ DT.rootLabel tree)
+
+_Z :: (Eq action, Ord action) => (InformationMap action) -> Maybe (DS.Set (History action))
+_Z = DM.lookup DS.empty
 
 {-
 _PP :: (Ord action, Show player, Show action) => DT.Tree (TreeElement player action) -> (InformationSet action) -> Maybe player
@@ -91,3 +83,8 @@ getInfoMapsState (DT.Node element forest) = do
 getInfoMaps :: (Ord action, Ord player) => DT.Tree (TreeElement player action) -> InformationMaps player action
 getInfoMaps gt = snd $ snd $ CMS.runState (getInfoMapsState gt) ([],DM.empty)
 
+_I :: (Ord action, Show action, Show player) => DT.Tree (TreeElement player action) -> InformationMap action -> History action -> Maybe (InformationSet action)
+_I gt infoMap h = (traverseTree gt h) >>= (\t -> (DM.lookup (getActions t) infoMap))
+
+_I_i :: (Ord action, Ord player, Show action) => InformationMaps player action -> Maybe player -> Maybe (InformationMap action)
+_I_i infoMaps maybePlayer = DM.lookup maybePlayer infoMaps
