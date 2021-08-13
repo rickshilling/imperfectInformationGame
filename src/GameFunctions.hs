@@ -4,6 +4,7 @@ module GameFunctions
     _P,
     _H,
     _I,
+    _I_i,
     _Z,
     drawGameTree,
     stepTree,
@@ -51,16 +52,14 @@ getActions gt = Prelude.foldl (\set -> \element -> DS.union set (DS.singleton $ 
 _A :: (Ord action, Show player, Show action) => DT.Tree (TreeElement player action) -> History action -> Maybe (DS.Set (Maybe action))
 _A g h = (traverseTree g h) >>= (\tree -> return (getActions tree))
 
+_A_of_i :: (informationset action) ->  maybe (ds.set (maybe action))
+_A_of_I infoSet = undefined
+
 _P :: (Ord action, Show player, Show action) => DT.Tree (TreeElement player action) -> History action -> Maybe player
 _P g h = (traverseTree g h) >>= (\tree -> getPlayer $ DT.rootLabel tree)
 
 _Z :: (Eq action, Ord action) => (InformationMap action) -> Maybe (DS.Set (History action))
 _Z = DM.lookup DS.empty
-
-{-
-_PP :: (Ord action, Show player, Show action) => DT.Tree (TreeElement player action) -> (InformationSet action) -> Maybe player
-_PP gt infoSet = undefined
--}
 
 getInfoMapsState :: (Ord action, Ord player) => DT.Tree (TreeElement player action) -> CMS.State (History action, InformationMaps player action) ()
 getInfoMapsState (DT.Node element forest) = do

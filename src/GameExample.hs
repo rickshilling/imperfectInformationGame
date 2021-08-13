@@ -39,8 +39,8 @@ playerFromHeadsHeads = (_P gt [Just Heads,Just Heads])
 
 infoMaps = getInfoMaps gt
 
-p1InfoMap = DM.lookup (Just P1) infoMaps
-p2InfoMap = DM.lookup (Just P2) infoMaps
-chanceInfoMap = DM.lookup (Just Chance) infoMaps
-nothingInfoMap = DM.lookup Nothing infoMaps
- 
+_I_p1 = _I_i infoMaps (Just P1)
+_I_p2 = _I_i infoMaps(Just P2)
+_I_chance = _I_i infoMaps (Just Chance)
+_I_nothing = _I_i infoMaps Nothing
+
