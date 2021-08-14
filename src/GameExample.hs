@@ -44,3 +44,5 @@ _I_p2 = _I_i infoMaps(Just P2)
 _I_chance = _I_i infoMaps (Just Chance)
 _I_nothing = _I_i infoMaps Nothing
 
+anActionSet = DS.fromList [Just ActionLeft, Just ActionRight]
+anInfoSet = _I_p1 >>= (\i -> DM.lookup anActionSet i)
