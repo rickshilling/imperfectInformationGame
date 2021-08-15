@@ -46,3 +46,9 @@ _I_nothing = _I_i infoMaps Nothing
 
 anActionSet = DS.fromList [Just ActionLeft, Just ActionRight]
 anInfoSet = _I_p1 >>= (\i -> DM.lookup anActionSet i)
+
+_numActions_p1 = _I_p1 >>= ord_A_i
+_numActions_p2 = _I_p2 >>= ord_A_i
+_numActions_chance = _I_chance >>= ord_A_i
+_numActions_nothing = _I_nothing >>= ord_A_i
+

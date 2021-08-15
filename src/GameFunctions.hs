@@ -10,7 +10,9 @@ module GameFunctions
     stepTree,
     drawMaybeGameTree,
     traverseTree,
-    getInfoMaps
+    getInfoMaps,
+    ord_A_i,
+    ord_A
     )
 where
 
@@ -79,7 +81,6 @@ _I_i infoMaps maybePlayer = DM.lookup maybePlayer infoMaps
 _A :: (Ord action, Show player, Show action) => DT.Tree (TreeElement player action) -> History action -> Maybe (DS.Set (Maybe action))
 _A g h = (traverseTree g h) >>= (\tree -> return (getActions tree))
 
--- take any element in the informationSet, i.e., an element, e, in {History action}, and return _A(e) 
 _A_of_I :: (Ord action, Show action, Show player) => DT.Tree (TreeElement player action) -> InformationSet action ->  Maybe (DS.Set (Maybe action))
 _A_of_I g infoSet = _A g (DS.elemAt 0 infoSet) 
 
@@ -88,3 +89,14 @@ _P g h = (traverseTree g h) >>= (\tree -> getPlayer $ DT.rootLabel tree)
 
 _Z :: (Eq action, Ord action) => (InformationMap action) -> Maybe (DS.Set (History action))
 _Z = DM.lookup DS.empty
+
+{-
+max_A_i :: (Ord action) => InformationMap action -> Int
+max_A_i _I_i = DM.foldr (\infoSet -> \maxSize -> max maxSize (DS.size infoSet) ) 0 _I_i
+-}
+
+ord_A_i :: (Ord action) => InformationMap action -> Maybe Int
+ord_A_i _I_i = Just $ DM.foldr (\infoSet -> \currentMaxSize -> max currentMaxSize (DS.size infoSet) ) 0 _I_i
+
+ord_A :: (Eq action, Ord action, Show player, Show action) => InformationMaps player action -> Maybe Int
+ord_A infoMaps = Just 
