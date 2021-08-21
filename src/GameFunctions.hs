@@ -12,7 +12,7 @@ module GameFunctions
     traverseTree,
     getInfoMaps,
     ord_A_i,
-    --ord_A
+    ord_A
     )
 where
 
@@ -90,13 +90,9 @@ _P g h = (traverseTree g h) >>= (\tree -> getPlayer $ DT.rootLabel tree)
 _Z :: (Eq action, Ord action) => (InformationMap action) -> Maybe (DS.Set (History action))
 _Z = DM.lookup DS.empty
 
-ord_A_i :: (Ord action) => InformationMap action -> Int
-ord_A_i _I_i = DM.foldr (\infoSet -> \maxSize -> max maxSize (DS.size infoSet) ) 0 _I_i
-{-
 ord_A_i :: (Ord action) => InformationMap action -> Maybe Int
 ord_A_i _I_i = Just $ DM.foldr (\infoSet -> \currentMaxSize -> max currentMaxSize (DS.size infoSet) ) 0 _I_i
--}
-{-
+
 ord_A :: (Eq action, Ord action, Show player, Show action) => InformationMaps player action -> Maybe Int
-ord_A infoMaps = Just $ DM.foldr (\infoMap -> \currentMaxSize -> max currentMaxSize ())
--}
+ord_A infoMaps = DM.foldr (\infoMap -> \maybeMaxSize -> max maybeMaxSize (ord_A_i infoMap)) (Just 0) infoMaps
+
